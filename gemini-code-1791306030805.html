@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal do Transportador | ADM Nutrição Animal</title>
+  <title>Portal do Transportador | Logística ADM Nutrição Animal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Supabase JS Client Oficial -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -25,7 +24,7 @@
       --adm-success: #16a34a;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background-color: var(--adm-bg); color: var(--adm-text); min-height: 100vh; display: flex; flex-direction: column; }
 
     .topbar {
@@ -38,7 +37,6 @@
       align-items: center;
       border-bottom: 2px solid var(--adm-green);
     }
-
     .topbar-badge {
       background: rgba(121, 176, 67, 0.2);
       border: 1px solid var(--adm-green);
@@ -46,7 +44,6 @@
       padding: 2px 8px;
       border-radius: 4px;
       font-weight: 600;
-      text-transform: uppercase;
       font-size: 0.72rem;
     }
 
@@ -59,18 +56,15 @@
       align-items: center;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-
     .brand-container { display: flex; align-items: center; gap: 1rem; }
-    .logo-adm { display: flex; align-items: center; gap: 0.4rem; font-size: 1.6rem; font-weight: 800; color: var(--adm-blue-dark); letter-spacing: -0.5px; text-decoration: none; }
-    .logo-leaf { color: var(--adm-green); font-size: 1.4rem; }
+    .logo-adm { font-size: 1.6rem; font-weight: 800; color: var(--adm-blue-dark); text-decoration: none; }
+    .logo-leaf { color: var(--adm-green); }
     .brand-divider { height: 28px; width: 1px; background: var(--adm-border); }
     .brand-subtitle { font-size: 0.95rem; font-weight: 600; color: var(--adm-blue-primary); }
 
-    .user-controls { display: flex; align-items: center; gap: 1rem; }
-
     .dev-switch-bar {
       background: #fef3c7;
-      border: 1px solid #fde68a;
+      border-bottom: 1px solid #fde68a;
       padding: 0.4rem 1.5rem;
       font-size: 0.8rem;
       display: flex;
@@ -85,7 +79,6 @@
       gap: 0.5rem;
       overflow-x: auto;
     }
-
     .nav-tab {
       color: rgba(255,255,255,0.85);
       background: transparent;
@@ -97,10 +90,19 @@
       border-bottom: 3px solid transparent;
       transition: all 0.2s;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
-
     .nav-tab:hover { color: white; background: rgba(255,255,255,0.06); }
     .nav-tab.active { color: white; border-bottom-color: var(--adm-green); background: rgba(255,255,255,0.08); }
+    .tab-badge {
+      background: var(--adm-warning);
+      color: white;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
 
     main { flex: 1; padding: 1.5rem; max-width: 1400px; margin: 0 auto; width: 100%; }
 
@@ -112,7 +114,6 @@
       padding: 1.5rem;
       margin-bottom: 1.5rem;
     }
-
     .view-header {
       display: flex;
       justify-content: space-between;
@@ -121,16 +122,14 @@
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--adm-border);
     }
-
-    .view-title { font-size: 1.25rem; font-weight: 700; color: var(--adm-blue-dark); display: flex; align-items: center; gap: 0.5rem; }
+    .view-title { font-size: 1.25rem; font-weight: 700; color: var(--adm-blue-dark); }
     .view-desc { font-size: 0.85rem; color: var(--adm-muted); margin-top: 0.25rem; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 
-    @media (max-width: 992px) {
-      .grid-2, .grid-4 { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 992px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
 
     .stat-card {
       background: white;
@@ -143,14 +142,14 @@
     .stat-card.amber { border-left-color: var(--adm-warning); }
 
     .stat-label { font-size: 0.78rem; text-transform: uppercase; font-weight: 600; color: var(--adm-muted); }
-    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--adm-text); margin-top: 0.4rem; }
+    .stat-value { font-size: 1.45rem; font-weight: 700; color: var(--adm-text); margin-top: 0.4rem; }
     .stat-hint { font-size: 0.75rem; color: var(--adm-muted); margin-top: 0.25rem; }
 
     .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 600;
@@ -162,32 +161,23 @@
 
     .table-container { width: 100%; overflow-x: auto; border: 1px solid var(--adm-border); border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
-    th { background: #f8fafc; color: var(--adm-muted); font-weight: 600; padding: 0.75rem 1rem; border-bottom: 1px solid var(--adm-border); white-space: nowrap; }
-    td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--adm-border); vertical-align: middle; }
+    th { background: #f8fafc; color: var(--adm-muted); font-weight: 600; padding: 0.75rem 1rem; border-bottom: 1px solid var(--adm-border); }
+    td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--adm-border); }
     tr:hover td { background-color: #f8fafc; }
 
     .form-group { margin-bottom: 1.1rem; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--adm-text); margin-bottom: 0.4rem; }
-    .form-control { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--adm-border); border-radius: 6px; font-size: 0.85rem; color: var(--adm-text); outline: none; }
-    .form-control:focus { border-color: var(--adm-blue-primary); box-shadow: 0 0 0 2px rgba(0,75,135,0.12); }
+    .form-control { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--adm-border); border-radius: 6px; font-size: 0.85rem; }
+    .form-control:focus { border-color: var(--adm-blue-primary); outline: none; }
 
     .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
       gap: 0.4rem;
-      max-height: 150px;
+      max-height: 140px;
       overflow-y: auto;
       border: 1px solid var(--adm-border);
       padding: 0.5rem;
-      border-radius: 6px;
-      background: #f8fafc;
-    }
-    .checkbox-card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 0.5rem;
-      border: 1px solid var(--adm-border);
-      padding: 0.75rem;
       border-radius: 6px;
       background: #f8fafc;
     }
@@ -210,7 +200,6 @@
     .btn-primary:hover { background: var(--adm-blue-dark); }
     .btn-secondary { background: #e2e8f0; color: var(--adm-text); }
     .btn-success { background: var(--adm-green); color: white; }
-    .btn-success:hover { background: var(--adm-green-dark); }
     .btn-outline { border: 1px solid var(--adm-border); background: white; color: var(--adm-text); }
 
     .upload-dropzone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 1.8rem; text-align: center; background: #f8fafc; cursor: pointer; }
@@ -220,16 +209,8 @@
       background: linear-gradient(135deg, #012169 0%, #004b87 100%);
     }
     .login-box {
-      background: white; border-radius: 10px; max-width: 520px; width: 100%; padding: 2.2rem;
+      background: white; border-radius: 10px; max-width: 540px; width: 100%; padding: 2.2rem;
       box-shadow: 0 15px 35px rgba(0,0,0,0.25); border-top: 5px solid var(--adm-green);
-    }
-    .demo-tips {
-      background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.85rem;
-      margin-top: 1.5rem; font-size: 0.78rem; color: #166534; line-height: 1.5;
-    }
-    .demo-link-btn {
-      color: var(--adm-blue-primary); text-decoration: underline; cursor: pointer; font-weight: 600;
-      background: none; border: none; padding: 0; font-size: 0.78rem;
     }
 
     .modal-overlay {
@@ -237,7 +218,7 @@
       display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem;
     }
     .modal-dialog {
-      background: white; border-radius: 8px; max-width: 650px; width: 100%; max-height: 90vh;
+      background: white; border-radius: 8px; max-width: 750px; width: 100%; max-height: 90vh;
       overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid var(--adm-border);
     }
     .modal-header { padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--adm-border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
@@ -253,7 +234,7 @@
 </head>
 <body>
 
-  <!-- Top Bar -->
+  <!-- Topbar Oficial -->
   <div class="topbar">
     <div style="display: flex; align-items: center; gap: 0.75rem;">
       <span class="topbar-badge">Ambiente Corporativo</span>
@@ -267,39 +248,33 @@
   <!-- Header pós-login -->
   <header id="mainHeader" class="hidden">
     <div class="brand-container">
-      <a href="#" class="logo-adm">
-        ADM <span class="logo-leaf">🌿</span>
-      </a>
+      <a href="#" class="logo-adm">ADM <span class="logo-leaf">🌿</span></a>
       <div class="brand-divider"></div>
       <div class="brand-subtitle" id="headerSubtitle">Portal do Transportador</div>
     </div>
-
-    <div class="user-controls">
+    <div class="user-controls" style="display: flex; align-items: center; gap: 1rem;">
       <div style="text-align: right; font-size: 0.8rem;">
         <strong id="loggedUserDisplay">Usuário</strong><br>
-        <span class="text-muted" id="loggedUserRole">Cargo</span>
+        <span class="text-muted" id="loggedUserRole">Perfil</span>
       </div>
       <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;" onclick="logout()">Sair 🚪</button>
     </div>
   </header>
 
-  <!-- Barra de Comutação Exclusiva do Desenvolvedor (Bianca, Yago, Francisco) -->
+  <!-- Master Bar do Controle Logístico -->
   <div id="devMasterBar" class="dev-switch-bar hidden">
-    <div>
-      <strong>⚡ Modo Desenvolvedor / Controlo Logístico Ativo:</strong> Alternar entre perspetivas:
-    </div>
+    <div><strong>⚡ Painel Controle Logístico (ADM Master):</strong> Alternar visão para testes:</div>
     <div style="display: flex; gap: 0.5rem;">
-      <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="simulateView('carrier')">🚚 Visão Transportadora</button>
-      <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="simulateView('validator')">🛡️️ Mesa de Validação</button>
-      <button class="btn btn-primary" style="padding: 2px 8px; font-size: 0.75rem;" onclick="simulateView('dev')">⚙️ Homologação & Configurações</button>
+      <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="applyView('carrier')">🚚 Visão Transportadora</button>
+      <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="applyView('validator')">🛡️ Mesa de Validação</button>
+      <button class="btn btn-primary" style="padding: 2px 8px; font-size: 0.75rem;" onclick="applyView('dev')">⚙️ Homologação & Cotações</button>
     </div>
   </div>
 
-  <!-- Navegação de Abas -->
   <nav class="portal-nav hidden" id="portalNav"></nav>
 
   <!-- ========================================== -->
-  <!-- 1. TELA DE LOGIN UNIFICADA DE ENTRADA ÚNICA -->
+  <!-- 1. TELA DE LOGIN & CADASTRO DE NOVO PARCEIRO -->
   <!-- ========================================== -->
   <div id="view-login">
     <div class="login-box">
@@ -313,51 +288,57 @@
       <form id="formLogin" onsubmit="handleAuth(event)">
         <div class="form-group">
           <label>CNPJ da Transportadora ou E-mail ADM *</label>
-          <input type="text" id="loginIdentifier" class="form-control" placeholder="CNPJ (apenas números) ou e-mail @adm.com" required>
+          <input type="text" id="loginIdentifier" class="form-control" placeholder="CNPJ (com ou sem máscara) ou e-mail @adm.com" required>
         </div>
-
         <div class="form-group">
-          <label>Palavra-passe de Acesso Único *</label>
-          <input type="password" id="loginPassword" class="form-control" placeholder="Digite a palavra-passe" required>
+          <label>Senha de Acesso *</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Digite sua senha" required>
         </div>
-
         <div id="loginErrorMsg" class="text-danger" style="font-size: 0.8rem; margin-bottom: 0.75rem; display: none;">
-          Credenciais incorretas. Verifique o identificador e a palavra-passe.
+          Credenciais não encontradas. Verifique os dados digitados.
         </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Aceder ao Portal ADM</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Acessar Portal ADM</button>
       </form>
 
-      <!-- Dicas de Acesso para Testes -->
-      <div class="demo-tips">
-        <strong>Credenciais para teste:</strong><br>
-        • <strong>Desenvolvedores:</strong> <button class="demo-link-btn" onclick="fillDemo('bianca@adm.com', 'adm123')">bianca@adm.com</button> | <button class="demo-link-btn" onclick="fillDemo('yago@adm.com', 'adm123')">yago@adm.com</button> | <button class="demo-link-btn" onclick="fillDemo('francisco@adm.com', 'adm123')">francisco@adm.com</button> (Senha: adm123)<br>
-        • <strong>Validadores:</strong> <button class="demo-link-btn" onclick="fillDemo('mariana.customer@adm.com', 'valida123')">mariana.customer@adm.com</button> | <button class="demo-link-btn" onclick="fillDemo('lucas.transporte@adm.com', 'valida123')">lucas.transporte@adm.com</button> (Senha: valida123)<br>
-        • <strong>Transportadora:</strong> <button class="demo-link-btn" onclick="fillDemo('14.882.910/0001-44', '1234')">14.882.910/0001-44</button> (Senha: 1234)
+      <div style="text-align: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--adm-border);">
+        <p style="font-size: 0.85rem; color: var(--adm-muted);">Ainda não é transportador homologado da ADM?</p>
+        <button class="btn btn-success" style="margin-top: 0.5rem; width: 100%;" onclick="openModal('modalCadastroPublico')">
+          📝 Quero me Cadastrar (Ficha de Conhecimento)
+        </button>
+      </div>
+
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.75rem; margin-top: 1.25rem; font-size: 0.75rem; color: #166534;">
+        <strong>Atalhos de Acesso Rápido para Teste:</strong><br>
+        • <a href="#" onclick="fillDemo('bianca@adm.com', 'adm123')">Controle Logístico (Bianca)</a> | <a href="#" onclick="fillDemo('yago@adm.com', 'adm123')">Yago</a> | <a href="#" onclick="fillDemo('francisco@adm.com', 'adm123')">Francisco</a><br>
+        • <a href="#" onclick="fillDemo('mariana.customer@adm.com', 'valida123')">Customer (Mariana)</a> | <a href="#" onclick="fillDemo('lucas.transporte@adm.com', 'valida123')">Transportes (Lucas)</a><br>
+        • <a href="#" onclick="fillDemo('14.882.910/0001-44', '1234')">Transportadora (CNPJ 14.882.910/0001-44)</a>
       </div>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- 2. AMBIENTES PÓS-LOGIN                    -->
+  <!-- 2. AMBIENTE OPERACIONAL (PÓS-LOGIN)        -->
   <!-- ========================================== -->
   <main id="mainApp" class="hidden">
 
-    <!-- AMBIENTE: TRANSPORTADORA -->
+    <!-- ------------------------------------------------------------------ -->
+    <!-- PERFIL: TRANSPORTADORA (CARRIER)                                  -->
+    <!-- ------------------------------------------------------------------ -->
+    
+    <!-- ABA 0: PAINEL GERAL (DASHBOARD INICIAL DO TRANSPORTADOR) -->
     <div id="tab-carrier-overview" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
           <div>
             <h3 class="view-title">Painel Operacional do Transportador</h3>
-            <p class="view-desc">Gestão de fretes para a ADM Nutrição Animal.</p>
+            <p class="view-desc">Situação cadastral na ADM Nutrição Animal, indicadores de liquidação e atalhos rápidos.</p>
           </div>
-          <span class="status-pill pago">Homologado</span>
+          <span class="status-pill pago">Homologado & Apto para Carregamento</span>
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
           <button class="btn btn-primary" onclick="navigate('tab-carrier-canhotos')">📸 Postar Novo Canhoto</button>
-          <button class="btn btn-outline" onclick="navigate('tab-carrier-ctes')">💰 Consultar CT-es & Recibos</button>
-          <button class="btn btn-outline" onclick="navigate('tab-carrier-formulario')">📝 Ficha de Conhecimento</button>
-          <button class="btn btn-success" onclick="navigate('tab-carrier-bookings')">📅 Agendar Reunião no Bookings</button>
+          <button class="btn btn-outline" onclick="navigate('tab-carrier-ctes')">💰 Ver Meus Fretes & Extrato</button>
+          <button class="btn btn-outline" onclick="navigate('tab-carrier-solicitacoes')">📑 Solicitar Alterações / Aditivos</button>
         </div>
       </div>
 
@@ -365,17 +346,17 @@
         <div class="stat-card green">
           <div class="stat-label">Total Liquidado (Mês)</div>
           <div class="stat-value" id="statPago">R$ 0,00</div>
-          <div class="stat-hint">Fretes com TED/PIX quitado</div>
+          <div class="stat-hint">Fretes com TED/PIX confirmado</div>
         </div>
         <div class="stat-card amber">
           <div class="stat-label">Aguardando Canhoto</div>
           <div class="stat-value" id="statPendente">R$ 0,00</div>
-          <div class="stat-hint">Envie o documento assinado</div>
+          <div class="stat-hint">Envie o comprovante assinado</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Canhotos em Análise</div>
+          <div class="stat-label">Canhotos em Auditoria</div>
           <div class="stat-value" id="statCanhotosAnalise">0</div>
-          <div class="stat-hint">Equipa fiscal a conferir</div>
+          <div class="stat-hint">Equipe fiscal conferindo</div>
         </div>
         <div class="stat-card green">
           <div class="stat-label">RNTRC / ANTT</div>
@@ -385,18 +366,36 @@
       </div>
     </div>
 
-    <!-- Envio de Canhoto (Transportadora) -->
+    <!-- ABA 1: ENVIO DE CANHOTO COM BUSCA POR NOTA FISCAL -->
     <div id="tab-carrier-canhotos" class="view-panel hidden">
       <div class="grid-2">
         <div class="view-card">
           <div class="view-header">
-            <h3 class="view-title">Postagem de Canhotos de Entrega</h3>
+            <div>
+              <h3 class="view-title">Postagem de Canhotos de Entrega</h3>
+              <p class="view-desc">Pesquise pela NF para carregar o CT-e e a Planta automaticamente.</p>
+            </div>
           </div>
+
           <form id="formCanhoto" onsubmit="handleSendCanhoto(event)">
             <div class="form-group">
-              <label>Número do CT-e *</label>
-              <input type="text" id="canhotoCte" class="form-control" placeholder="Ex: CTE-2026-9012" required>
+              <label>🔍 Pesquisar Número da Nota Fiscal (NF) *</label>
+              <input type="text" id="canhotoNfSearch" list="listNfs" class="form-control" placeholder="Digite o número da NF (ex: NF-99214)" oninput="handleNfLookup(this.value)" required>
+              <datalist id="listNfs"></datalist>
+              <small class="text-muted">Ao selecionar a NF da base, CT-e e Planta serão preenchidos automaticamente.</small>
             </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Número do CT-e *</label>
+                <input type="text" id="canhotoCte" class="form-control" placeholder="CTE-XXXX" required>
+              </div>
+              <div class="form-group">
+                <label>Planta de Carregamento ADM *</label>
+                <input type="text" id="canhotoPlanta" class="form-control" placeholder="Ex: Indaiatuba (SP), Primavera (MT)" required>
+              </div>
+            </div>
+
             <div class="grid-2">
               <div class="form-group">
                 <label>Data Efetiva da Entrega *</label>
@@ -407,16 +406,18 @@
                 <input type="text" id="canhotoRecebedor" class="form-control" placeholder="Quem assinou no destino" required>
               </div>
             </div>
+
             <div class="form-group">
-              <label>Fotografia do Canhoto Assinado *</label>
+              <label>Foto / Documento do Canhoto Assinado *</label>
               <div class="upload-dropzone" onclick="document.getElementById('fileCanhoto').click()">
-                <div style="font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--adm-blue-primary);">📷</div>
-                <strong>Clique ou arraste a fotografia do canhoto</strong>
-                <p class="text-muted" style="font-size: 0.78rem; margin-top: 0.25rem;">Formatos aceites: JPG, PNG ou PDF</p>
+                <div style="font-size: 2rem; color: var(--adm-blue-primary);">📷</div>
+                <strong>Anexar imagem do canhoto</strong>
+                <p class="text-muted" style="font-size: 0.78rem;">JPG, PNG ou PDF legível</p>
                 <input type="file" id="fileCanhoto" accept="image/*,application/pdf" style="display:none;" onchange="previewCanhoto(this)">
                 <div id="filePreviewName" style="margin-top: 0.5rem; font-weight: 600; color: var(--adm-blue-primary);"></div>
               </div>
             </div>
+
             <button type="submit" id="btnSubmitCanhoto" class="btn btn-primary" style="width: 100%;">🚀 Postar Canhoto para Validação</button>
           </form>
         </div>
@@ -428,10 +429,11 @@
               <thead>
                 <tr>
                   <th>Protocolo</th>
-                  <th>CT-e</th>
+                  <th>NF / CT-e</th>
+                  <th>Planta</th>
                   <th>Data Entrega</th>
                   <th>Status</th>
-                  <th>Visualizar</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody id="tableCarrierCanhotosBody"></tbody>
@@ -441,24 +443,59 @@
       </div>
     </div>
 
-    <!-- Extrato de CT-e (Transportadora) -->
+    <!-- ABA 2: MEUS FRETES REFORMULADA (CAMPOS PRECISOS + FILTROS COMPLETOS) -->
     <div id="tab-carrier-ctes" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
-          <h3 class="view-title">Demonstrativo de Fretes & Comprovantes Bancários</h3>
-          <button class="btn btn-outline" onclick="exportCteCsv()">📥 Exportar Planilha</button>
+          <div>
+            <h3 class="view-title">Demonstrativo de Fretes</h3>
+            <p class="view-desc">Acompanhamento dos Conhecimentos de Transporte emitidos.</p>
+          </div>
+          <button class="btn btn-outline" onclick="exportCteCsv()">📥 Extrair Base (CSV/Excel)</button>
         </div>
+
+        <div style="background: #f8fafc; border: 1px solid var(--adm-border); border-radius: 6px; padding: 1rem; margin-bottom: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; display: block;">Data Início:</label>
+            <input type="date" id="filterDataIni" class="form-control" style="padding: 0.4rem; font-size: 0.8rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; display: block;">Data Fim:</label>
+            <input type="date" id="filterDataFim" class="form-control" style="padding: 0.4rem; font-size: 0.8rem;">
+          </div>
+          <div id="filterCnpjContainer" style="display: none;">
+            <label style="font-size: 0.75rem; font-weight: 600; display: block;">CNPJ:</label>
+            <input type="text" id="filterCnpj" class="form-control" placeholder="CNPJ..." style="padding: 0.4rem; font-size: 0.8rem; width: 150px;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 600; display: block;">Planta ADM:</label>
+            <select id="filterPlanta" class="form-control" style="padding: 0.4rem; font-size: 0.8rem; width: 180px;">
+              <option value="">Todas as Plantas</option>
+              <option value="Descalvado (SP)">Descalvado (SP)</option>
+              <option value="Rolim de Moura (RO)">Rolim de Moura (RO)</option>
+              <option value="São Lourenço da Mata (PE)">São Lourenço da Mata (PE)</option>
+              <option value="Canoas (RS)">Canoas (RS)</option>
+              <option value="Primavera do Leste (MT)">Primavera do Leste (MT)</option>
+              <option value="Apucarana (PR)">Apucarana (PR)</option>
+              <option value="Inhumas (GO)">Inhumas (GO)</option>
+              <option value="Indaiatuba (SP)">Indaiatuba (SP)</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;" onclick="filterCteTable()">Filtrar</button>
+          <button class="btn btn-outline" style="padding: 0.4rem 0.85rem; font-size: 0.8rem;" onclick="resetCteFilter()">Limpar</button>
+        </div>
+
         <div class="table-container">
           <table>
             <thead>
               <tr>
-                <th>Número CT-e</th>
-                <th>Origem / Destino</th>
+                <th>Número do CT-e</th>
                 <th>Emissão</th>
-                <th>Valor Frete</th>
+                <th>Planta ADM</th>
+                <th>Valor do Frete (R$)</th>
                 <th>Status</th>
                 <th>Data Pagamento</th>
-                <th>Comprovante</th>
+                <th>Recibo</th>
               </tr>
             </thead>
             <tbody id="tableCarrierCteBody"></tbody>
@@ -467,17 +504,321 @@
       </div>
     </div>
 
-    <!-- Ficha de Conhecimento (Transportadora) -->
-    <div id="tab-carrier-formulario" class="view-panel hidden">
+    <!-- ABA 3: SOLICITAR ALTERAÇÕES & BOOKINGS CONDICIONAL -->
+    <div id="tab-carrier-solicitacoes" class="view-panel hidden">
+      <div class="grid-2">
+        <div class="view-card">
+          <div class="view-header">
+            <div>
+              <h3 class="view-title">Solicitar Alterações & Aditivos</h3>
+              <p class="view-desc">Envio de apólices, novos CNPJs, dados e agendamento para informações adicionais.</p>
+            </div>
+          </div>
+
+          <form id="formAlteracao" onsubmit="handleSalvarSolicitacao(event)">
+            <div class="form-group">
+              <label>Selecione a Categoria de Solicitação *</label>
+              <select id="categoriaAlteracao" class="form-control" onchange="handleCategoriaChange(this.value)" required>
+                <option value="">Selecione...</option>
+                <option value="ENVIO_DOC">Envio de documentação adicional</option>
+                <option value="APOLICE">Envio de apólice renovada</option>
+                <option value="DADOS">Alteração de dados cadastrais</option>
+                <option value="NOVO_CNPJ">Adicionar novo CNPJ</option>
+                <option value="INFO_ADICIONAIS">Informações adicionais (Libera agendamento no Bookings)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Descrição Detalhada / Justificativa *</label>
+              <textarea id="descSolicitacao" class="form-control" rows="3" placeholder="Descreva o que está sendo alterado ou adicionado..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Anexar Documento / Comprovante (PDF/Imagem) *</label>
+              <input type="file" id="fileAlteracao" class="form-control">
+            </div>
+
+            <!-- Botão de Bookings condicionado estritamente à categoria 'Informações Adicionais' -->
+            <div id="boxBookingsCondicional" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+              <strong style="color: #166534; font-size: 0.88rem;">📅 Reunião de Alinhamento Liberada</strong>
+              <p style="font-size: 0.8rem; color: #166534; margin: 0.3rem 0 0.8rem;">Como selecionou "Informações Adicionais", você pode agendar uma reunião diretamente na agenda da equipe pelo Microsoft Bookings:</p>
+              <a id="btnBookingsAlteracao" href="https://outlook.office365.com/owa/calendar/ADMTransportes@adm.com/bookings/" target="_blank" class="btn btn-success" style="font-size: 0.82rem; padding: 0.4rem 0.85rem;">
+                Agendar no Microsoft Bookings ↗
+              </a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Solicitação para Homologação</button>
+          </form>
+        </div>
+
+        <div class="view-card">
+          <div class="view-header"><h3 class="view-title">Minhas Solicitações Cadastradas</h3></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Protocolo</th>
+                  <th>Categoria</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tableSolicitacoesCarrierBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- PERFIL: MESA DE VALIDAÇÃO (CUSTOMER & TRANSPORTES)                -->
+    <!-- ------------------------------------------------------------------ -->
+    <div id="tab-validator-mesa" class="view-panel hidden">
+      <div class="view-card" style="border-left: 4px solid var(--adm-blue-primary);">
+        <div class="view-header">
+          <div>
+            <h3 class="view-title">🛡️ Mesa de Conferência e Validação de Canhotos</h3>
+            <p class="view-desc">Valide a entrega física. Ao aprovar, o canhoto é enviado por e-mail e baixado do Supabase.</p>
+          </div>
+          <span class="topbar-badge">Validação Fiscal & Operacional</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Transportadora</th>
+                <th>CT-e / NF</th>
+                <th>Planta</th>
+                <th>Data Entrega</th>
+                <th>Recebedor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tableAuditorCanhotosBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view-card">
+        <div class="view-header"><h3 class="view-title">📜 Histórico de Auditorias com Assinatura</h3></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>CT-e</th>
+                <th>Decisão</th>
+                <th>Validador Responsável</th>
+                <th>Data/Hora</th>
+                <th>Status E-mail</th>
+              </tr>
+            </thead>
+            <tbody id="tableAuditorHistoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- PERFIL: CONTROLE LOGÍSTICO (BIANCA, YAGO, FRANCISCO)              -->
+    <!-- ------------------------------------------------------------------ -->
+
+    <!-- ABA HOMOLOGAÇÃO DE CADASTROS & SOLICITAÇÕES -->
+    <div id="tab-dev-cadastros" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
-          <h3 class="view-title">📋 Formulário de Conhecimento - Novos Transportadores</h3>
+          <div>
+            <h3 class="view-title">📋 Gestão de Homologação: Novos Transportadores</h3>
+            <p class="view-desc">Fichas de conhecimento recebidas pela tela inicial para avaliação do Controle Logístico.</p>
+          </div>
+          <button class="btn btn-outline" onclick="exportarFichasCsv()">📥 Exportar Fichas (Excel)</button>
         </div>
-        <form id="formNovoTransportador" onsubmit="handleSalvarFormulario(event)">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Transportadora</th>
+                <th>CNPJ</th>
+                <th>Região ADM</th>
+                <th>Frota / Veículos</th>
+                <th>Regime Tributário</th>
+                <th>Seguro Carga / Molhadura</th>
+                <th>Contato</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tableDevFichasBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="view-card">
+        <div class="view-header">
+          <h3 class="view-title">📑 Solicitações de Alterações / Aditivos / Apólices</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Transportadora</th>
+                <th>Categoria</th>
+                <th>Detalhes</th>
+                <th>Data</th>
+                <th>Decisão</th>
+              </tr>
+            </thead>
+            <tbody id="tableDevSolicitacoesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA COTAÇÃO DE FRETE TRIPLA + PISO MÍNIMO ANTT -->
+    <div id="tab-dev-cotacoes" class="view-panel hidden">
+      <div class="view-card" style="border-left: 4px solid var(--adm-green);">
+        <div class="view-header">
+          <div>
+            <h3 class="view-title">🚛 Simulador e Painel de Cotação de Frete (Triangulação)</h3>
+            <p class="view-desc">Comparação obrigatória de 3 propostas com validação do Piso Mínimo ANTT por tipo de carga e KM.</p>
+          </div>
+        </div>
+
+        <form onsubmit="handleSalvarCotacao(event)" style="background: #f8fafc; border: 1px solid var(--adm-border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Origem / Planta Carregadora *</label>
+              <input type="text" id="cotOrigem" class="form-control" placeholder="Ex: Indaiatuba - SP" required>
+            </div>
+            <div class="form-group">
+              <label>Destino / Cliente *</label>
+              <input type="text" id="cotDestino" class="form-control" placeholder="Ex: Rondonópolis - MT" required>
+            </div>
+            <div class="form-group">
+              <label>Distância Total (KM) *</label>
+              <input type="number" id="cotKm" class="form-control" placeholder="Ex: 1450" oninput="calcularPisoAntt()" required>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Tipo de Tabela ANTT (Composição) *</label>
+              <select id="cotTipoAntt" class="form-control" onchange="calcularPisoAntt()" required>
+                <option value="GRANEL_SOLIDO">Granel Sólido (Grãos / Farelo)</option>
+                <option value="CARGA_GERAL">Carga Geral (Ensacados / Paletes)</option>
+                <option value="FRIGORIFICADA">Frigorificada / Especial</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Número de Eixos *</label>
+              <select id="cotEixos" class="form-control" onchange="calcularPisoAntt()" required>
+                <option value="5">5 Eixos (Carreta Simples)</option>
+                <option value="6">6 Eixos (Vanderleia / Carreta 3 Eixos)</option>
+                <option value="7">7 Eixos (Bitrem)</option>
+                <option value="9">9 Eixos (Rodotrem)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Piso Mínimo ANTT Calculado (R$):</label>
+              <input type="text" id="cotPisoAntt" class="form-control" style="background:#e2e8f0; font-weight:700;" readonly value="R$ 0,00">
+            </div>
+          </div>
+
+          <div class="grid-3" style="background: white; border: 1px solid var(--adm-border); padding: 1rem; border-radius: 6px;">
+            <div class="form-group">
+              <label style="color: var(--adm-blue-dark);">1ª Cotação (Transportadora A) *</label>
+              <input type="text" id="cotTransp1" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
+              <input type="number" id="cotValor1" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
+            </div>
+            <div class="form-group">
+              <label style="color: var(--adm-blue-dark);">2ª Cotação (Transportadora B) *</label>
+              <input type="text" id="cotTransp2" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
+              <input type="number" id="cotValor2" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
+            </div>
+            <div class="form-group">
+              <label style="color: var(--adm-blue-dark);">3ª Cotação (Transportadora C) *</label>
+              <input type="text" id="cotTransp3" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
+              <input type="number" id="cotValor3" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
+            </div>
+          </div>
+
+          <div style="text-align: right; margin-top: 1rem;">
+            <button type="submit" class="btn btn-success">💾 Gravar Mapa de Cotação Tripla</button>
+          </div>
+        </form>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Rota</th>
+                <th>KM</th>
+                <th>Piso Mínimo ANTT</th>
+                <th>1ª Cotação</th>
+                <th>2ª Cotação</th>
+                <th>3ª Cotação</th>
+                <th>Melhor Oferta</th>
+                <th>Status ANTT</th>
+              </tr>
+            </thead>
+            <tbody id="tableCotacoesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA SUBIR BASE DE DADOS (SEPARADA NA BARRA DO CONTROLE LOGÍSTICO) -->
+    <div id="tab-dev-base" class="view-panel hidden">
+      <div class="view-card" style="border-left: 4px solid var(--adm-blue-primary);">
+        <div class="view-header">
+          <div>
+            <h3 class="view-title">📥 Subir Base de Dados de CT-es e Notas Fiscais</h3>
+            <p class="view-desc">Alimente o sistema com os dados emitidos pelo TMS/SAP para viabilizar a busca de NF e alimentar os fretes.</p>
+          </div>
+          <button class="btn btn-outline" onclick="downloadModeloCsv()">📄 Baixar Modelo CSV</button>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Selecione a Planilha CSV (com as colunas de NF, CT-e, Planta e Valor) *</label>
+            <input type="file" id="inputCsvBase" class="form-control" accept=".csv">
+            <small class="text-muted">Colunas: NumeroCTE;NumeroNF;CNPJ_Transportadora;Planta;DataEmissao;ValorFrete;Status;DataPagamento</small>
+            <div style="margin-top: 1rem;">
+              <button class="btn btn-primary" onclick="processarBaseCsv()">⚡ Processar e Atualizar Base Oficial</button>
+            </div>
+            <div id="baseFeedbackMsg" style="margin-top: 0.5rem; font-size: 0.82rem; font-weight: 600;"></div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid var(--adm-border); padding: 1rem; border-radius: 6px; font-size: 0.8rem; line-height: 1.6;">
+            <strong>ℹ️ Orientações de Importação:</strong>
+            <p>1. Ao subir a base, todas as Notas Fiscais ficam disponíveis para preenchimento automático no envio de canhotos.</p>
+            <p>2. Cada transportador só visualizará os CT-es vinculados ao seu próprio CNPJ.</p>
+            <p>3. Utilize codificação UTF-8 separada por ponto e vírgula (<code>;</code>).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================= -->
+  <!-- MODAL: FICHA DE CONHECIMENTO PÚBLICA (ONBOARDING INICIAL) -->
+  <!-- ======================================================= -->
+  <div class="modal-overlay" id="modalCadastroPublico">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h4 class="modal-title">Formulário de Conhecimento - Novos Transportadores ADM</h4>
+        <button style="border:none; background:none; font-size:1.2rem; cursor:pointer;" onclick="closeModal('modalCadastroPublico')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="formPublicCadastro" onsubmit="handleCadastroPublico(event)">
           <div class="grid-2">
             <div class="form-group">
               <label>1. Região de Maior Interesse *</label>
-              <select id="f_regiao" class="form-control" required>
+              <select id="pub_regiao" class="form-control" required>
                 <option value="">Selecione...</option>
                 <option value="DESCALVADO (SP)">DESCALVADO (SP)</option>
                 <option value="ROLIM DE MOURA (RO)">ROLIM DE MOURA (RO)</option>
@@ -490,190 +831,70 @@
                 <option value="NACIONAL">NACIONAL</option>
               </select>
             </div>
-            <div class="form-group"><label>2. Nome Completo do Responsável *</label><input type="text" id="f_responsavel" class="form-control" required></div>
-            <div class="form-group"><label>3. Número para Contato (WhatsApp) *</label><input type="text" id="f_telefone" class="form-control" required></div>
-            <div class="form-group"><label>4. Nome da Transportadora *</label><input type="text" id="f_transportadora" class="form-control" required></div>
-            <div class="form-group"><label>5. E-mail *</label><input type="email" id="f_email" class="form-control" required></div>
-            <div class="form-group"><label>6. CNPJ *</label><input type="text" id="f_cnpj" class="form-control" required></div>
+            <div class="form-group"><label>2. Nome Completo do Responsável *</label><input type="text" id="pub_responsavel" class="form-control" required></div>
+            <div class="form-group"><label>3. Número para Contato (WhatsApp) *</label><input type="text" id="pub_telefone" class="form-control" required></div>
+            <div class="form-group"><label>4. Nome da Transportadora *</label><input type="text" id="pub_transportadora" class="form-control" required></div>
+            <div class="form-group"><label>5. E-mail *</label><input type="email" id="pub_email" class="form-control" required></div>
+            <div class="form-group"><label>6. CNPJ *</label><input type="text" id="pub_cnpj" class="form-control" required></div>
+          </div>
+
+          <div class="form-group" style="background: #fffbeb; border: 1px solid #fde68a; padding: 0.75rem; border-radius: 6px;">
+            <label style="color: #92400e;">16. Qual o Regime Tributário da Transportadora? *</label>
+            <select id="pub_regime" class="form-control" required onchange="checkRegimeTributario(this.value)">
+              <option value="">Selecione o regime fiscal...</option>
+              <option value="LUCRO REAL">LUCRO REAL</option>
+              <option value="SIMPLES NACIONAL">SIMPLES NACIONAL</option>
+            </select>
+            <div id="msgSimplesNacional" style="display: none; margin-top: 0.5rem; font-size: 0.85rem; color: #b91c1c; font-weight: 600;">
+              Agradecemos imensamente o seu interesse em ser parceiro da ADM. No momento, devido a diretrizes fiscais e tributárias, não estamos homologando transportadores optantes pelo Simples Nacional.
+            </div>
           </div>
 
           <div class="form-group">
             <label>7. Estados de Atendimento *</label>
-            <div class="checkbox-grid" id="containerEstados"></div>
+            <div class="checkbox-grid" id="containerEstadosPub"></div>
           </div>
 
           <div class="grid-2">
-            <div class="form-group"><label>8. Possui Seguro de Veículo? *</label><select id="f_seguro_veiculo" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
-            <div class="form-group"><label>9. Possui Seguro de Carga? *</label><select id="f_seguro_carga" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
-            <div class="form-group"><label>10. Seguro cobre danos por molhadura? *</label><select id="f_cobre_molhadura" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
-            <div class="form-group"><label>11. Seguro cobre todas as avarias? *</label><select id="f_cobre_avarias" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
-            <div class="form-group"><label>12. Possui frota própria? *</label><select id="f_tipo_frota" class="form-control"><option value="FROTA PRÓPRIA">FROTA PRÓPRIA</option><option value="AGREGADO">AGREGADO</option><option value="TERCEIRO">TERCEIRO</option></select></div>
-            <div class="form-group"><label>15. Tipo de atendimento realizado *</label><select id="f_tipo_atendimento" class="form-control"><option value="LOTAÇÃO">LOTAÇÃO</option><option value="FRACIONADO">FRACIONADO</option><option value="NENHUMA">NENHUMA</option></select></div>
-            <div class="form-group"><label>16. Regime Tributário *</label><select id="f_regime_tributario" class="form-control"><option value="LUCRO REAL">LUCRO REAL</option><option value="SIMPLES NACIONAL">SIMPLES NACIONAL</option></select></div>
+            <div class="form-group"><label>8. Possui Seguro de Veículo? *</label><select id="pub_seguro_veiculo" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
+            <div class="form-group"><label>9. Possui Seguro de Carga? *</label><select id="pub_seguro_carga" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
+            <div class="form-group"><label>10. Cobre danos por molhadura? *</label><select id="pub_cobre_molhadura" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
+            <div class="form-group"><label>11. Cobre todas as avarias? *</label><select id="pub_cobre_avarias" class="form-control"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
+            <div class="form-group"><label>12. Possui frota própria? *</label><select id="pub_tipo_frota" class="form-control"><option value="FROTA PRÓPRIA">FROTA PRÓPRIA</option><option value="AGREGADO">AGREGADO</option><option value="TERCEIRO">TERCEIRO</option></select></div>
+            <div class="form-group"><label>15. Tipo de atendimento *</label><select id="pub_tipo_atendimento" class="form-control"><option value="LOTAÇÃO">LOTAÇÃO</option><option value="FRACIONADO">FRACIONADO</option></select></div>
           </div>
 
-          <div class="form-group">
-            <label>13. Tipos de Veículos *</label>
-            <div class="checkbox-card-grid">
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="V.U.C."> V.U.C.</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="TOCO"> TOCO</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="FIORINO"> FIORINO</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="TRUCK 3 EIXOS"> TRUCK 3 EIXOS</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="BITRUCK"> BITRUCK</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="CARRETA 6 EIXOS"> CARRETA 6 EIXOS</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="BI TREM"> BI TREM</label>
-              <label class="checkbox-label"><input type="checkbox" name="veiculos" value="RODOTREM"> RODOTREM</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>14. Veículos Especiais *</label>
-            <div class="checkbox-card-grid">
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="SILO"> SILO</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="SIDER"> SIDER</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="BAÚ"> BAÚ</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="CONTAINER"> CONTAINER</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="CAÇAMBA"> CAÇAMBA</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="GRANELEIRO"> GRANELEIRO</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="TANQUE"> TANQUE</label>
-              <label class="checkbox-label"><input type="checkbox" name="especiais" value="NENHUM"> NENHUM</label>
-            </div>
-          </div>
-
-          <div style="text-align: right; margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2rem;">Submeter Ficha de Conhecimento</button>
+          <div id="btnCadastroSubmitContainer" style="text-align: right; margin-top: 1.25rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">Enviar Ficha para Homologação</button>
           </div>
         </form>
       </div>
     </div>
+  </div>
 
-    <!-- Reuniões Bookings -->
-    <div id="tab-carrier-bookings" class="view-panel hidden">
-      <div class="view-card" style="border-left: 4px solid var(--adm-green);">
-        <div class="view-header">
-          <h3 class="view-title">📅 Agendamento de Reuniões | Microsoft Bookings</h3>
+  <!-- MODAL: VALIDAÇÃO DE CANHOTO DO AUDITOR -->
+  <div class="modal-overlay" id="modalPreviewCanhoto">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h4 class="modal-title">Validação Fiscal de Canhoto</h4>
+        <button style="border:none; background:none; font-size:1.2rem; cursor:pointer;" onclick="closeModal('modalPreviewCanhoto')">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <div style="background: #e2e8f0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; max-height: 350px; overflow-y: auto;">
+          <div id="previewDocContainer" style="font-size: 3rem;">📄</div>
+          <strong id="previewCteTitle">CT-e</strong><br>
+          <span class="text-muted" id="previewRecebedor">Recebedor</span>
         </div>
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1.5rem;">
-          <h4 style="color: var(--adm-green-dark); margin-bottom: 0.5rem;">Reserve o horário na agenda corporativa</h4>
-          <p style="font-size: 0.88rem; color: #166534; margin-bottom: 1.25rem;">
-            Alinhamento de fretes, negociação de safra por tonelada ou apoio operacional direto no Microsoft Teams.
-          </p>
-          <a id="btnLinkBookings" href="https://outlook.office365.com/owa/calendar/ADMTransportes@adm.com/bookings/" target="_blank" class="btn btn-success" style="padding: 0.75rem 1.5rem;">
-            📅 Abrir Página do Microsoft Bookings ↗
-          </a>
-        </div>
+        <p style="font-size: 0.85rem; color: var(--adm-muted);">Ao aprovar, a liquidação bancária é efetuada, o e-mail de arquivo é disparado e o arquivo é baixado do Supabase.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline text-danger" onclick="glosarCanhotoModal()">❌ Glosar / Recusar</button>
+        <button class="btn btn-success" onclick="aprovarCanhotoModal()">✅ Aprovar, Arquivar por E-mail & Limpar Supabase</button>
       </div>
     </div>
+  </div>
 
-    <!-- AMBIENTE: VALIDADOR (CUSTOMER & TRANSPORTES) -->
-    <div id="tab-validator-canhotos" class="view-panel hidden">
-      <div class="view-card" style="border-left: 4px solid var(--adm-blue-primary);">
-        <div class="view-header">
-          <div>
-            <h3 class="view-title">🛡️ Mesa de Conferência e Validação de Canhotos</h3>
-            <p class="view-desc">Valide a entrega física. Ao aprovar, o arquivo é enviado por e-mail e removido do Supabase.</p>
-          </div>
-          <span class="topbar-badge">Validação Fiscal & Operacional</span>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Protocolo</th>
-                <th>Transportadora</th>
-                <th>CT-e</th>
-                <th>Data Entrega</th>
-                <th>Recebedor</th>
-                <th>Ações de Auditoria</th>
-              </tr>
-            </thead>
-            <tbody id="tableAuditorCanhotosBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Histórico de Auditorias -->
-      <div class="view-card">
-        <div class="view-header"><h3 class="view-title">📜 Histórico de Auditorias Realizadas</h3></div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Protocolo</th>
-                <th>CT-e</th>
-                <th>Decisão</th>
-                <th>Validador Responsável</th>
-                <th>Data/Hora</th>
-                <th>Justificativa / Autenticação</th>
-              </tr>
-            </thead>
-            <tbody id="tableAuditorHistoryBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- AMBIENTE: CONTROLE LOGÍSTICO (BIANCA, YAGO, FRANCISCO) -->
-    <div id="tab-dev-homologacao" class="view-panel hidden">
-      <div class="view-card">
-        <div class="view-header">
-          <div>
-            <h3 class="view-title">📋 Homologação: Novos Transportadores Registados</h3>
-            <p class="view-desc">Informações recolhidas para cálculo de tabela, negociação e capacidade.</p>
-          </div>
-          <button class="btn btn-outline" onclick="exportarFichasCsv()">📥 Exportar Fichas (Excel)</button>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Transportadora</th>
-                <th>CNPJ</th>
-                <th>Região</th>
-                <th>Tipo Frota / Veículos</th>
-                <th>Seguros (Carga/Molhadura)</th>
-                <th>Regime</th>
-                <th>Contacto</th>
-              </tr>
-            </thead>
-            <tbody id="tableDevFichasBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Configurações de Supabase e Bases do TMS -->
-      <div class="view-card" style="border-left: 4px solid var(--adm-green);">
-        <div class="view-header">
-          <h3 class="view-title">⚙️ Conexão Supabase & Governação Logística</h3>
-        </div>
-        <div class="grid-2">
-          <!-- Configuração Supabase -->
-          <div class="form-group">
-            <label>Configuração do Supabase (Chaves de Nuvem) *</label>
-            <input type="text" id="supabaseUrlInput" class="form-control" placeholder="https://seu-projeto.supabase.co" style="margin-bottom: 0.4rem;">
-            <input type="text" id="supabaseKeyInput" class="form-control" placeholder="Anon Public Key (eyJhbGciOi...)">
-            <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="salvarConfigSupabase()">Salvar Credenciais Supabase</button>
-            <div id="supabaseStatusDisplay" style="margin-top: 0.4rem; font-size: 0.78rem; font-weight: 600;"></div>
-          </div>
-
-          <!-- E-mail de Arquivamento e Bookings -->
-          <div class="form-group">
-            <label>E-mail de Arquivamento de Canhotos Validados *</label>
-            <input type="email" id="emailArquivoInput" class="form-control" value="canhotos.logistica@adm.com" style="margin-bottom: 0.5rem;">
-            <label>Link Oficial do Microsoft Bookings *</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="inputBookingsUrl" class="form-control" value="https://outlook.office365.com/owa/calendar/ADMTransportes@adm.com/bookings/">
-              <button class="btn btn-secondary" onclick="salvarLinkBookings()">Atualizar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- MODAIS -->
+  <!-- MODAL: COMPROVANTE BANCÁRIO -->
   <div class="modal-overlay" id="modalComprovante">
     <div class="modal-dialog">
       <div class="modal-header">
@@ -688,92 +909,49 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalPreviewCanhoto">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h4 class="modal-title">Validação Fiscal de Canhoto</h4>
-        <button style="border:none; background:none; font-size:1.2rem; cursor:pointer;" onclick="closeModal('modalPreviewCanhoto')">✕</button>
-      </div>
-      <div class="modal-body" style="text-align: center;">
-        <div style="background: #e2e8f0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; max-height: 350px; overflow-y: auto;">
-          <div id="previewDocContainer" style="font-size: 3rem;">📄</div>
-          <strong id="previewCteTitle">CT-e</strong><br>
-          <span class="text-muted" id="previewRecebedor">Recebedor</span>
-        </div>
-        <p style="font-size: 0.85rem; color: var(--adm-muted);">Ao aprovar, a liquidação bancária é efetuada, o e-mail de arquivo é preparado e o arquivo físico é expurgado do Supabase.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline text-danger" onclick="glosarCanhotoModal()">❌ Glosar / Recusar</button>
-        <button class="btn btn-success" onclick="aprovarCanhotoModal()">✅ Aprovar, Arquivar por E-mail & Limpar Supabase</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const ESTADOS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
-    // CONFIGURAÇÃO SUPABASE
-    let supabaseClient = null;
-    let SUPABASE_URL = localStorage.getItem('adm_supabase_url') || '';
-    let SUPABASE_ANON_KEY = localStorage.getItem('adm_supabase_key') || '';
+    const TABELA_ANTT_BASE = {
+      GRANEL_SOLIDO: { 5: 4.85, 6: 5.40, 7: 6.20, 9: 7.15 },
+      CARGA_GERAL: { 5: 4.50, 6: 5.10, 7: 5.90, 9: 6.80 },
+      FRIGORIFICADA: { 5: 5.60, 6: 6.30, 7: 7.20, 9: 8.30 }
+    };
 
-    function initSupabase() {
-      if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const statusEl = document.getElementById('supabaseStatusDisplay');
-        if (statusEl) statusEl.innerHTML = '<span class="text-success">✓ Conectado ao Supabase</span>';
-        carregarCanhotosSupabase();
+    function loadStorage(k, def) { const d = localStorage.getItem('adm_' + k); return d ? JSON.parse(d) : def; }
+    function saveStorage(k, v) { localStorage.setItem('adm_' + k, JSON.stringify(v)); }
+
+    let ctesData = loadStorage('ctes', [
+      { id: 'CTE-2026-8901', nf: 'NF-99101', cnpj: '14.882.910/0001-44', planta: 'Indaiatuba (SP)', emissao: '2026-09-18', valor: 22400.00, status: 'PAGO', pagoEm: '2026-09-22', autenticacao: 'ADM.TED.8920192.X49' },
+      { id: 'CTE-2026-8944', nf: 'NF-99150', cnpj: '14.882.910/0001-44', planta: 'Primavera do Leste (MT)', emissao: '2026-09-24', valor: 26250.00, status: 'PAGO', pagoEm: '2026-09-28', autenticacao: 'ADM.PIX.7741029.B11' },
+      { id: 'CTE-2026-9012', nf: 'NF-99214', cnpj: '14.882.910/0001-44', planta: 'Descalvado (SP)', emissao: '2026-10-01', valor: 14800.00, status: 'PENDENTE', pagoEm: '-', autenticacao: '-' }
+    ]);
+
+    let canhotosData = loadStorage('canhotos', [
+      { id: 'CAN-8812', cte: 'CTE-2026-9012', nf: 'NF-99214', planta: 'Descalvado (SP)', cnpj: '14.882.910/0001-44', transportadora: 'TransRodrigues Logística Ltda', data: '2026-10-04', recebedor: 'Carlos Alberto (Almoxarifado)', status: 'ANALISE', fileName: 'canhoto_rio_verde.jpg', fileData: null }
+    ]);
+
+    let fichasData = loadStorage('fichas', [
+      {
+        regiao: 'PRIMAVERA DO LESTE (MT)', responsavel: 'Carlos Eduardo Rodrigues', telefone: '(66) 99874-1234',
+        transportadora: 'TransRodrigues Logística Ltda', email: 'carlos@transrodrigues.com.br', cnpj: '14.882.910/0001-44',
+        regime: 'LUCRO REAL', status: 'HOMOLOGADO', seguroCarga: 'Sim', cobreMolhadura: 'Sim', tipoFrota: 'FROTA PRÓPRIA'
       }
-    }
+    ]);
 
-    function salvarConfigSupabase() {
-      const url = document.getElementById('supabaseUrlInput').value.trim();
-      const key = document.getElementById('supabaseKeyInput').value.trim();
-      if (!url || !key) {
-        alert('Por favor, informe a URL e a Anon Public Key do Supabase.');
-        return;
-      }
-      localStorage.setItem('adm_supabase_url', url);
-      localStorage.setItem('adm_supabase_key', key);
-      SUPABASE_URL = url;
-      SUPABASE_ANON_KEY = key;
-      initSupabase();
-      alert('Credenciais do Supabase salvas com sucesso!');
-    }
+    let solicitacoesData = loadStorage('solicitacoes', []);
+    let cotacoesData = loadStorage('cotacoes', []);
+    let auditoriaHistorico = loadStorage('historico', []);
 
-    // BASE DE UTILIZADORES
     const USERS_DB = {
-      // 1. Desenvolvedores / Controlo Logístico (Visão Universal)
       "bianca@adm.com": { pass: "adm123", role: "dev", name: "Bianca Diniz", desc: "Controle Logístico ADM (Master)" },
       "yago@adm.com": { pass: "adm123", role: "dev", name: "Yago Silva", desc: "Controle Logístico ADM (Master)" },
       "francisco@adm.com": { pass: "adm123", role: "dev", name: "Francisco Souza", desc: "Controle Logístico ADM (Master)" },
-
-      // 2. Validadores Individuais (Customer & Transportes)
       "mariana.customer@adm.com": { pass: "valida123", role: "validator", name: "Mariana Costa", desc: "Customer Service ADM" },
       "lucas.transporte@adm.com": { pass: "valida123", role: "validator", name: "Lucas Ferreira", desc: "Gestão de Transportes ADM" },
-
-      // 3. Transportadora (Por CNPJ)
       "14.882.910/0001-44": { pass: "1234", role: "carrier", name: "TransRodrigues Logística Ltda", desc: "CNPJ: 14.882.910/0001-44", cnpj: "14.882.910/0001-44" },
       "14882910000144": { pass: "1234", role: "carrier", name: "TransRodrigues Logística Ltda", desc: "CNPJ: 14.882.910/0001-44", cnpj: "14.882.910/0001-44" }
     };
-
-    function loadStorage(key, defaultVal) {
-      const data = localStorage.getItem('adm_' + key);
-      return data ? JSON.parse(data) : defaultVal;
-    }
-    function saveStorage(key, val) {
-      localStorage.setItem('adm_' + key, JSON.stringify(val));
-    }
-
-    let ctesData = loadStorage('ctes', [
-      { id: 'CTE-2026-8901', cnpj: '14.882.910/0001-44', origem: 'Rondonópolis - MT', destino: 'Porto de Santos - SP', emissao: '2026-09-18', valor: 22400.00, status: 'PAGO', pagoEm: '2026-09-22', autenticacao: 'ADM.TED.8920192.X49' },
-      { id: 'CTE-2026-8944', cnpj: '14.882.910/0001-44', origem: 'Sorriso - MT', destino: 'Terminal ADM Barcarena - PA', emissao: '2026-09-24', valor: 26250.00, status: 'PAGO', pagoEm: '2026-09-28', autenticacao: 'ADM.PIX.7741029.B11' },
-      { id: 'CTE-2026-9012', cnpj: '14.882.910/0001-44', origem: 'Rio Verde - GO', destino: 'Fábrica ADM Uberlândia - MG', emissao: '2026-10-01', valor: 14800.00, status: 'PENDENTE', pagoEm: '-', autenticacao: '-' }
-    ]);
-
-    let canhotosData = loadStorage('canhotos', []);
-    let fichasData = loadStorage('fichas', []);
-    let auditoriaHistorico = loadStorage('historico', []);
 
     let currentUser = null;
     let selectedCanhotoId = null;
@@ -782,36 +960,48 @@
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       renderEstados();
-      initSupabase();
-
-      if (SUPABASE_URL) {
-        const uInp = document.getElementById('supabaseUrlInput');
-        if (uInp) uInp.value = SUPABASE_URL;
-      }
-      if (SUPABASE_ANON_KEY) {
-        const kInp = document.getElementById('supabaseKeyInput');
-        if (kInp) kInp.value = SUPABASE_ANON_KEY;
-      }
+      populateNfDataList();
     });
+
+    function renderEstados() {
+      const c = document.getElementById('containerEstadosPub');
+      if (!c) return;
+      c.innerHTML = '';
+      ESTADOS.forEach(uf => {
+        const lbl = document.createElement('label');
+        lbl.className = 'checkbox-label';
+        lbl.innerHTML = `<input type="checkbox" name="pubEstados" value="${uf}"> ${uf}`;
+        c.appendChild(lbl);
+      });
+    }
+
+    function populateNfDataList() {
+      const dl = document.getElementById('listNfs');
+      if (!dl) return;
+      dl.innerHTML = '';
+      ctesData.forEach(c => {
+        if (c.nf) {
+          const opt = document.createElement('option');
+          opt.value = c.nf;
+          opt.label = `CT-e: ${c.id} | Planta: ${c.planta}`;
+          dl.appendChild(opt);
+        }
+      });
+    }
+
+    function handleNfLookup(nfTyped) {
+      const match = ctesData.find(c => c.nf && c.nf.toLowerCase() === nfTyped.trim().toLowerCase());
+      if (match) {
+        document.getElementById('canhotoCte').value = match.id;
+        document.getElementById('canhotoPlanta').value = match.planta;
+      }
+    }
 
     function fillDemo(login, pass) {
       document.getElementById('loginIdentifier').value = login;
       document.getElementById('loginPassword').value = pass;
     }
 
-    function renderEstados() {
-      const c = document.getElementById('containerEstados');
-      if (!c) return;
-      c.innerHTML = '';
-      ESTADOS.forEach(uf => {
-        const lbl = document.createElement('label');
-        lbl.className = 'checkbox-label';
-        lbl.innerHTML = `<input type="checkbox" name="estadosUf" value="${uf}"> ${uf}`;
-        c.appendChild(lbl);
-      });
-    }
-
-    // LOGIN
     function handleAuth(e) {
       e.preventDefault();
       const login = document.getElementById('loginIdentifier').value.trim();
@@ -849,41 +1039,49 @@
 
       if (user.role === 'dev') {
         document.getElementById('devMasterBar').classList.remove('hidden');
+        document.getElementById('filterCnpjContainer').style.display = 'block';
       } else {
         document.getElementById('devMasterBar').classList.add('hidden');
+        document.getElementById('filterCnpjContainer').style.display = 'none';
       }
 
       applyView(user.role);
     }
 
-    function simulateView(role) { applyView(role); }
-
     function applyView(role) {
       const nav = document.getElementById('portalNav');
       nav.innerHTML = '';
+
+      const countCanhotosPendentes = canhotosData.filter(c => c.status === 'ANALISE').length;
+      const countFichasPendentes = fichasData.filter(f => f.status !== 'HOMOLOGADO').length;
 
       if (role === 'carrier') {
         document.getElementById('headerSubtitle').innerText = 'Portal do Transportador';
         nav.innerHTML = `
           <button class="nav-tab active" onclick="navigate('tab-carrier-overview')">📊 Painel Geral</button>
-          <button class="nav-tab" onclick="navigate('tab-carrier-canhotos')">📄 Envio de Canhotos</button>
-          <button class="nav-tab" onclick="navigate('tab-carrier-ctes')">💰 Meus Fretes & CT-e</button>
-          <button class="nav-tab" onclick="navigate('tab-carrier-formulario')">📝 Ficha de Conhecimento</button>
-          <button class="nav-tab" onclick="navigate('tab-carrier-bookings')">📅 Agendar Reunião (Bookings)</button>
+          <button class="nav-tab" onclick="navigate('tab-carrier-canhotos')">📸 Envio de Canhotos</button>
+          <button class="nav-tab" onclick="navigate('tab-carrier-ctes')">💰 Meus Fretes</button>
+          <button class="nav-tab" onclick="navigate('tab-carrier-solicitacoes')">📑 Solicitar Alterações</button>
         `;
         navigate('tab-carrier-overview');
       } else if (role === 'validator') {
         document.getElementById('headerSubtitle').innerText = 'Mesa de Validação de Canhotos | Customer & Transportes';
         nav.innerHTML = `
-          <button class="nav-tab active" onclick="navigate('tab-validator-canhotos')">🛡️ Mesa de Validação de Canhotos</button>
+          <button class="nav-tab active" onclick="navigate('tab-validator-mesa')">
+            🛡️ Mesa de Validação de Canhotos <span class="tab-badge">${countCanhotosPendentes}</span>
+          </button>
         `;
-        navigate('tab-validator-canhotos');
+        navigate('tab-validator-mesa');
       } else if (role === 'dev') {
-        document.getElementById('headerSubtitle').innerText = 'Controle Logístico | Homologação & Configurações';
+        document.getElementById('headerSubtitle').innerText = 'Controle Logístico | Gestão Master ADM';
         nav.innerHTML = `
-          <button class="nav-tab active" onclick="navigate('tab-dev-homologacao')">⚙️ Homologação de Cadastros & Governança</button>
+          <button class="nav-tab active" onclick="navigate('tab-dev-cadastros')">
+            📋 Homologação de Cadastros <span class="tab-badge">${countFichasPendentes}</span>
+          </button>
+          <button class="nav-tab" onclick="navigate('tab-dev-cotacoes')">🚛 Cotações & Piso ANTT</button>
+          <button class="nav-tab" onclick="navigate('tab-dev-base')">📥 Subir Base de Dados</button>
         `;
-        navigate('tab-dev-homologacao');
+        navigate('tab-dev-cadastros');
       }
 
       renderAll();
@@ -905,6 +1103,7 @@
       renderValidatorTable();
       renderDevTables();
       updateMetrics();
+      populateNfDataList();
     }
 
     function updateMetrics() {
@@ -916,30 +1115,44 @@
       const totalPendente = myCtes.filter(c => c.status === 'PENDENTE').reduce((acc, c) => acc + c.valor, 0);
       const emAnalise = canhotosData.filter(c => c.status === 'ANALISE').length;
 
-      document.getElementById('statPago').innerText = totalPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      document.getElementById('statPendente').innerText = totalPendente.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      document.getElementById('statCanhotosAnalise').innerText = emAnalise;
+      const elPago = document.getElementById('statPago');
+      const elPend = document.getElementById('statPendente');
+      const elAnalise = document.getElementById('statCanhotosAnalise');
+
+      if (elPago) elPago.innerText = totalPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      if (elPend) elPend.innerText = totalPendente.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      if (elAnalise) elAnalise.innerText = emAnalise;
     }
 
     function renderCarrierTables() {
       const tbCte = document.getElementById('tableCarrierCteBody');
       if (tbCte) {
         tbCte.innerHTML = '';
-        const filtered = (currentUser?.role === 'carrier')
+        let list = (currentUser?.role === 'carrier')
           ? ctesData.filter(c => c.cnpj === currentUser.cnpj)
           : ctesData;
 
-        filtered.forEach(cte => {
+        const dIni = document.getElementById('filterDataIni')?.value;
+        const dFim = document.getElementById('filterDataFim')?.value;
+        const fPlanta = document.getElementById('filterPlanta')?.value;
+        const fCnpj = document.getElementById('filterCnpj')?.value?.trim();
+
+        if (dIni) list = list.filter(c => c.emissao >= dIni);
+        if (dFim) list = list.filter(c => c.emissao <= dFim);
+        if (fPlanta) list = list.filter(c => c.planta && c.planta.toLowerCase().includes(fPlanta.toLowerCase()));
+        if (fCnpj && currentUser?.role === 'dev') list = list.filter(c => c.cnpj && c.cnpj.includes(fCnpj));
+
+        list.forEach(cte => {
           const badge = cte.status === 'PAGO' ? 'pago' : 'pendente';
           const btn = cte.status === 'PAGO'
-            ? `<button class="btn btn-outline" style="padding:3px 8px; font-size:0.75rem;" onclick="viewComprovante('${cte.id}')">📄 Recibo</button>`
+            ? `<button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem;" onclick="viewComprovante('${cte.id}')">📄 Recibo</button>`
             : `<span class="text-muted" style="font-size:0.75rem;">Aguardando Canhoto</span>`;
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td><strong>${cte.id}</strong></td>
-            <td>${cte.origem} ➔ ${cte.destino}</td>
             <td>${cte.emissao}</td>
+            <td>${cte.planta || 'Geral ADM'}</td>
             <td><strong>${cte.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></td>
             <td><span class="status-pill ${badge}">${cte.status}</span></td>
             <td>${cte.pagoEm}</td>
@@ -947,29 +1160,285 @@
           `;
           tbCte.appendChild(tr);
         });
+
+        if (list.length === 0) {
+          tbCte.innerHTML = `<tr><td colspan="7" class="text-muted" style="text-align:center;">Nenhum CT-e encontrado para os filtros selecionados.</td></tr>`;
+        }
       }
 
       const tbCan = document.getElementById('tableCarrierCanhotosBody');
       if (tbCan) {
         tbCan.innerHTML = '';
-        const myCanhotos = (currentUser?.role === 'carrier')
+        const myCan = (currentUser?.role === 'carrier')
           ? canhotosData.filter(c => c.cnpj === currentUser.cnpj)
           : canhotosData;
 
-        myCanhotos.forEach(c => {
+        myCan.forEach(c => {
           const badge = c.status === 'APROVADO' ? 'pago' : (c.status === 'ANALISE' ? 'analise' : 'glosado');
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td><strong>${c.id}</strong></td>
-            <td>${c.cte}</td>
+            <td>${c.nf || '-'} / ${c.cte}</td>
+            <td>${c.planta || 'ADM'}</td>
             <td>${c.data}</td>
             <td><span class="status-pill ${badge}">${c.status}</span></td>
-            <td>
-              <button class="btn btn-outline" style="padding:2px 6px; font-size:0.72rem;" onclick="viewCanhotoDoc('${c.id}')">🔍 Ver Imagem</button>
-            </td>
+            <td><button class="btn btn-outline" style="padding:2px 6px; font-size:0.72rem;" onclick="viewCanhotoDoc('${c.id}')">🔍 Ver Imagem</button></td>
           `;
           tbCan.appendChild(tr);
         });
+      }
+
+      const tbSol = document.getElementById('tableSolicitacoesCarrierBody');
+      if (tbSol) {
+        tbSol.innerHTML = '';
+        solicitacoesData.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${s.id}</strong></td>
+            <td>${s.categoria}</td>
+            <td>${s.data}</td>
+            <td><span class="status-pill analise">${s.status}</span></td>
+          `;
+          tbSol.appendChild(tr);
+        });
+      }
+    }
+
+    function filterCteTable() { renderCarrierTables(); }
+    function resetCteFilter() {
+      if (document.getElementById('filterDataIni')) document.getElementById('filterDataIni').value = '';
+      if (document.getElementById('filterDataFim')) document.getElementById('filterDataFim').value = '';
+      if (document.getElementById('filterPlanta')) document.getElementById('filterPlanta').value = '';
+      if (document.getElementById('filterCnpj')) document.getElementById('filterCnpj').value = '';
+      renderCarrierTables();
+    }
+
+    function handleCategoriaChange(val) {
+      const box = document.getElementById('boxBookingsCondicional');
+      if (val === 'INFO_ADICIONAIS') {
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
+    function handleSalvarSolicitacao(e) {
+      e.preventDefault();
+      const cat = document.getElementById('categoriaAlteracao').value;
+      const desc = document.getElementById('descSolicitacao').value;
+      const newId = 'SOL-' + Math.floor(1000 + Math.random() * 9000);
+
+      solicitacoesData.unshift({
+        id: newId,
+        categoria: cat,
+        transportadora: currentUser.name,
+        cnpj: currentUser.cnpj,
+        detalhes: desc,
+        data: new Date().toLocaleDateString('pt-BR'),
+        status: 'EM ANÁLISE'
+      });
+
+      saveStorage('solicitacoes', solicitacoesData);
+      renderAll();
+      alert(`✅ Solicitação ${newId} protocolada e enviada para a equipe de Controle Logístico!`);
+      document.getElementById('formAlteracao').reset();
+      handleCategoriaChange('');
+    }
+
+    function checkRegimeTributario(regime) {
+      const msg = document.getElementById('msgSimplesNacional');
+      const btn = document.getElementById('btnCadastroSubmitContainer');
+
+      if (regime === 'SIMPLES NACIONAL') {
+        msg.style.display = 'block';
+        btn.style.display = 'none';
+      } else {
+        msg.style.display = 'none';
+        btn.style.display = 'block';
+      }
+    }
+
+    function handleCadastroPublico(e) {
+      e.preventDefault();
+      const reg = document.getElementById('pub_regime').value;
+      if (reg === 'SIMPLES NACIONAL') return;
+
+      const cnpj = document.getElementById('pub_cnpj').value;
+      const transp = document.getElementById('pub_transportadora').value;
+      const regiao = document.getElementById('pub_regiao').value;
+
+      fichasData.unshift({
+        transportadora: transp,
+        cnpj: cnpj,
+        regiao: regiao,
+        responsavel: document.getElementById('pub_responsavel').value,
+        telefone: document.getElementById('pub_telefone').value,
+        email: document.getElementById('pub_email').value,
+        regime: reg,
+        status: 'PENDENTE HOMOLOGAÇÃO',
+        seguroCarga: document.getElementById('pub_seguro_carga').value,
+        cobreMolhadura: document.getElementById('pub_cobre_molhadura').value,
+        tipoFrota: document.getElementById('pub_tipo_frota').value
+      });
+
+      saveStorage('fichas', fichasData);
+      closeModal('modalCadastroPublico');
+      alert(`✅ Pré-cadastro enviado com sucesso!\nComo sua empresa é optante por ${reg}, disponibilizamos a agenda para reunião inicial.`);
+      window.open("https://outlook.office365.com/owa/calendar/ADMTransportes@adm.com/bookings/", "_blank");
+    }
+
+    function calcularPisoAntt() {
+      const km = parseFloat(document.getElementById('cotKm').value) || 0;
+      const tipo = document.getElementById('cotTipoAntt').value;
+      const eixos = document.getElementById('cotEixos').value;
+
+      const taxa = TABELA_ANTT_BASE[tipo]?.[eixos] || 5.0;
+      const totalPiso = km * taxa;
+      document.getElementById('cotPisoAntt').value = totalPiso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      return totalPiso;
+    }
+
+    function handleSalvarCotacao(e) {
+      e.preventDefault();
+      const km = parseFloat(document.getElementById('cotKm').value);
+      const piso = calcularPisoAntt();
+      const v1 = parseFloat(document.getElementById('cotValor1').value);
+      const v2 = parseFloat(document.getElementById('cotValor2').value);
+      const v3 = parseFloat(document.getElementById('cotValor3').value);
+
+      const t1 = document.getElementById('cotTransp1').value;
+      const t2 = document.getElementById('cotTransp2').value;
+      const t3 = document.getElementById('cotTransp3').value;
+
+      let menorValor = Math.min(v1, v2, v3);
+      let melhorTransp = v1 === menorValor ? t1 : (v2 === menorValor ? t2 : t3);
+      let anttStatus = menorValor >= piso ? 'CONFORME' : 'ABAIXO DO PISO';
+
+      cotacoesData.unshift({
+        origem: document.getElementById('cotOrigem').value,
+        destino: document.getElementById('cotDestino').value,
+        km: km,
+        piso: piso,
+        t1: `${t1} (R$ ${v1.toFixed(2)})`,
+        t2: `${t2} (R$ ${v2.toFixed(2)})`,
+        t3: `${t3} (R$ ${v3.toFixed(2)})`,
+        vencedor: `${melhorTransp} (R$ ${menorValor.toFixed(2)})`,
+        anttStatus: anttStatus
+      });
+
+      saveStorage('cotacoes', cotacoesData);
+      renderDevTables();
+      alert(`✅ Cotação Tripla homologada com sucesso!\nMelhor oferta: ${melhorTransp}.\nStatus ANTT: ${anttStatus}`);
+    }
+
+    function processarBaseCsv() {
+      const inp = document.getElementById('inputCsvBase');
+      const msg = document.getElementById('baseFeedbackMsg');
+      if (!inp.files || !inp.files[0]) {
+        msg.innerHTML = '<span class="text-danger">Selecione um arquivo CSV antes de prosseguir.</span>';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split('\n').filter(l => l.trim().length > 0);
+        let imported = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(';').map(c => c.trim().replace(/"/g, ''));
+          if (cols.length >= 6) {
+            ctesData.unshift({
+              id: cols[0],
+              nf: cols[1],
+              cnpj: cols[2],
+              planta: cols[3],
+              emissao: cols[4],
+              valor: parseFloat(cols[5].replace('.', '').replace(',', '.')) || 0,
+              status: cols[6] || 'PENDENTE',
+              pagoEm: cols[7] || '-',
+              autenticacao: 'ADM.IMP.' + Math.floor(100000 + Math.random() * 900000)
+            });
+            imported++;
+          }
+        }
+
+        saveStorage('ctes', ctesData);
+        populateNfDataList();
+        renderAll();
+        msg.innerHTML = `<span class="text-success">✓ Sucesso! ${imported} registros integrados à base de dados oficial.</span>`;
+      };
+      reader.readAsText(inp.files[0]);
+    }
+
+    function openPreviewCanhotoModal(canId, cte, recebedor) {
+      selectedCanhotoId = canId;
+      document.getElementById('previewCteTitle').innerText = cte;
+      document.getElementById('previewRecebedor').innerText = 'Recebedor: ' + recebedor;
+
+      const c = canhotosData.find(x => x.id === canId);
+      const container = document.getElementById('previewDocContainer');
+      if (c && c.fileData) {
+        container.innerHTML = `<img src="${c.fileData}" style="max-height:280px; max-width:100%; border-radius:4px;" alt="Canhoto">`;
+      } else {
+        container.innerHTML = `<div style="font-size:3rem;">📄</div><span class="text-muted">${c?.fileName || 'Canhoto'}</span>`;
+      }
+      openModal('modalPreviewCanhoto');
+    }
+
+    function aprovarCanhotoModal() {
+      const can = canhotosData.find(c => c.id === selectedCanhotoId);
+      if (!can) return;
+
+      const authCode = 'ADM.TED.' + Math.floor(1000000 + Math.random() * 9000000);
+      can.status = 'APROVADO';
+
+      const cte = ctesData.find(x => x.id === can.cte);
+      if (cte) {
+        cte.status = 'PAGO';
+        cte.pagoEm = new Date().toISOString().split('T')[0];
+        cte.autenticacao = authCode;
+      }
+
+      const emailDestino = 'canhotos.logistica@adm.com';
+      const assunto = encodeURIComponent(`[CANHOTO APROVADO ADM] CT-e ${can.cte} - ${can.transportadora}`);
+      const corpo = encodeURIComponent(
+        `Prezados,\n\nO comprovante de entrega foi validado com sucesso pela mesa fiscal da ADM Nutrição Animal:\n\n` +
+        `• Protocolo: ${can.id}\n• CT-e: ${can.cte} | NF: ${can.nf || 'Declarada'}\n• Planta ADM: ${can.planta || 'Unidade Carregadora'}\n` +
+        `• Transportadora: ${can.transportadora} (${can.cnpj})\n• Validador Responsável: ${currentUser.name} (${currentUser.login})\n` +
+        `• Autenticação: ${authCode}\n\nO pagamento foi deferido no extrato.`
+      );
+
+      auditoriaHistorico.unshift({
+        protocolo: can.id,
+        cte: can.cte,
+        decisao: 'APROVADO',
+        validador: `${currentUser.name} (${currentUser.login})`,
+        dataHora: new Date().toLocaleString('pt-BR'),
+        detalhe: 'Notificado via e-mail e liquidado.'
+      });
+
+      saveStorage('canhotos', canhotosData);
+      saveStorage('ctes', ctesData);
+      saveStorage('historico', auditoriaHistorico);
+
+      closeModal('modalPreviewCanhoto');
+      renderAll();
+
+      alert(`✅ Canhoto aprovado por ${currentUser.name}!\nO frete foi liquidado e o comprovante disparado para ${emailDestino}.`);
+      
+      const mailLink = document.createElement('a');
+      mailLink.href = `mailto:${emailDestino}?subject=${assunto}&body=${corpo}`;
+      mailLink.click();
+    }
+
+    function glosarCanhotoModal() {
+      const mot = prompt('Informe a justificativa da glosa:');
+      if (mot) {
+        const can = canhotosData.find(c => c.id === selectedCanhotoId);
+        if (can) can.status = 'GLOSADO';
+        closeModal('modalPreviewCanhoto');
+        renderAll();
+        alert('Canhoto glosado com sucesso.');
       }
     }
 
@@ -978,39 +1447,33 @@
       if (tbVal) {
         tbVal.innerHTML = '';
         const pendentes = canhotosData.filter(c => c.status === 'ANALISE');
-
         pendentes.forEach(c => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td><strong>${c.id}</strong></td>
             <td>${c.transportadora}</td>
-            <td><strong>${c.cte}</strong></td>
+            <td>${c.cte} / ${c.nf || '-'}</td>
+            <td>${c.planta || 'ADM'}</td>
             <td>${c.data}</td>
             <td>${c.recebedor}</td>
-            <td>
-              <button class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="openPreviewCanhotoModal('${c.id}', '${c.cte}', '${c.recebedor}')">🔎 Auditar</button>
-            </td>
+            <td><button class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="openPreviewCanhotoModal('${c.id}', '${c.cte}', '${c.recebedor}')">🔎 Auditar</button></td>
           `;
           tbVal.appendChild(tr);
         });
-        if (pendentes.length === 0) {
-          tbVal.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center;">Nenhum canhoto aguardando auditoria fiscal.</td></tr>`;
-        }
       }
 
       const tbHist = document.getElementById('tableAuditorHistoryBody');
       if (tbHist) {
         tbHist.innerHTML = '';
         auditoriaHistorico.forEach(h => {
-          const badge = h.decisao === 'APROVADO' ? 'pago' : 'glosado';
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td><strong>${h.protocolo}</strong></td>
             <td>${h.cte}</td>
-            <td><span class="status-pill ${badge}">${h.decisao}</span></td>
-            <td><strong>${h.validador}</strong></td>
+            <td><span class="status-pill pago">${h.decisao}</span></td>
+            <td>${h.validador}</td>
             <td>${h.dataHora}</td>
-            <td>${h.detalhe}</td>
+            <td><span class="text-success">✓ Enviado</span></td>
           `;
           tbHist.appendChild(tr);
         });
@@ -1026,328 +1489,107 @@
           tr.innerHTML = `
             <td><strong>${f.transportadora}</strong></td>
             <td>${f.cnpj}</td>
-            <td><span class="topbar-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">${f.regiao}</span></td>
-            <td>${f.tipoFrota}<br><small class="text-muted">${f.veiculos.join(', ')}</small></td>
-            <td>Carga: <strong>${f.seguroCarga}</strong> | Molhadura: <strong>${f.cobreMolhadura}</strong></td>
+            <td>${f.regiao}</td>
+            <td>${f.tipoFrota || 'Própria'}</td>
             <td><span class="status-pill pago">${f.regime}</span></td>
+            <td>Carga: ${f.seguroCarga || 'Sim'} | Molh: ${f.cobreMolhadura || 'Sim'}</td>
             <td>${f.responsavel} (${f.telefone})</td>
+            <td><span class="status-pill analise">${f.status}</span></td>
           `;
           tbFichas.appendChild(tr);
         });
       }
-    }
 
-    // CAPTURA DO ARQUIVO LOCAL
-    function previewCanhoto(input) {
-      if (input.files && input.files[0]) {
-        currentSelectedFile = input.files[0];
-        document.getElementById('filePreviewName').innerText = '✓ ' + currentSelectedFile.name;
-      }
-    }
-
-    // SINCRONIZAR CANHOTOS DO SUPABASE
-    async function carregarCanhotosSupabase() {
-      if (!supabaseClient) return;
-      try {
-        const { data, error } = await supabaseClient
-          .from('canhotos')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (!error && data) {
-          canhotosData = data.map(d => ({
-            id: d.id,
-            cte: d.cte,
-            cnpj: d.cnpj,
-            transportadora: d.transportadora,
-            data: d.data,
-            recebedor: d.recebedor,
-            status: d.status,
-            fileName: d.file_name,
-            fileUrl: d.file_url
-          }));
-          renderAll();
-        }
-      } catch (err) {
-        console.warn('Operando com base local:', err);
-      }
-    }
-
-    // ENVIO DE CANHOTO COM UPLOAD REAL PARA SUPABASE
-    async function handleSendCanhoto(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btnSubmitCanhoto');
-      const cte = document.getElementById('canhotoCte').value.trim();
-      const data = document.getElementById('canhotoData').value;
-      const recebedor = document.getElementById('canhotoRecebedor').value;
-      const newId = 'CAN-' + Math.floor(1000 + Math.random() * 9000);
-
-      btn.disabled = true;
-      btn.innerText = 'Enviando imagem para a nuvem...';
-
-      let fileUrl = null;
-      let storagePath = null;
-
-      // 1. Upload para o Supabase Storage se configurado
-      if (supabaseClient && currentSelectedFile) {
-        try {
-          const ext = currentSelectedFile.name.split('.').pop();
-          storagePath = `${newId}_${cte}.${ext}`;
-          
-          const { error: uploadErr } = await supabaseClient
-            .storage
-            .from('canhotos')
-            .upload(storagePath, currentSelectedFile, { upsert: true });
-
-          if (uploadErr) {
-            console.error('Erro de upload Supabase:', uploadErr);
-          } else {
-            const { data: publicData } = supabaseClient
-              .storage
-              .from('canhotos')
-              .getPublicUrl(storagePath);
-            fileUrl = publicData.publicUrl;
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      // Se não houver supabase configurado, cria preview em DataURL local
-      if (!fileUrl && currentSelectedFile) {
-        fileUrl = await new Promise(res => {
-          const r = new FileReader();
-          r.onload = ev => res(ev.target.result);
-          r.readAsDataURL(currentSelectedFile);
+      const tbSol = document.getElementById('tableDevSolicitacoesBody');
+      if (tbSol) {
+        tbSol.innerHTML = '';
+        solicitacoesData.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${s.id}</strong></td>
+            <td>${s.transportadora}</td>
+            <td>${s.categoria}</td>
+            <td>${s.detalhes}</td>
+            <td>${s.data}</td>
+            <td>
+              <button class="btn btn-success" style="padding:2px 6px; font-size:0.72rem;" onclick="alert('Solicitação deferida.')">Aprovar</button>
+            </td>
+          `;
+          tbSol.appendChild(tr);
         });
       }
 
-      const novoCanhoto = {
+      const tbCot = document.getElementById('tableCotacoesBody');
+      if (tbCot) {
+        tbCot.innerHTML = '';
+        cotacoesData.forEach(c => {
+          const badge = c.anttStatus === 'CONFORME' ? 'pago' : 'glosado';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${c.origem} ➔ ${c.destino}</td>
+            <td>${c.km} KM</td>
+            <td><strong>${c.piso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></td>
+            <td>${c.t1}</td>
+            <td>${c.t2}</td>
+            <td>${c.t3}</td>
+            <td><strong>${c.vencedor}</strong></td>
+            <td><span class="status-pill ${badge}">${c.anttStatus}</span></td>
+          `;
+          tbCot.appendChild(tr);
+        });
+      }
+    }
+
+    let currentFileBase64 = null;
+    function previewCanhoto(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('filePreviewName').innerText = '✓ ' + file.name;
+        const reader = new FileReader();
+        reader.onload = ev => currentFileBase64 = ev.target.result;
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleSendCanhoto(e) {
+      e.preventDefault();
+      const cte = document.getElementById('canhotoCte').value.trim();
+      const nf = document.getElementById('canhotoNfSearch').value.trim();
+      const planta = document.getElementById('canhotoPlanta').value.trim();
+      const data = document.getElementById('canhotoData').value;
+      const rec = document.getElementById('canhotoRecebedor').value;
+      const newId = 'CAN-' + Math.floor(1000 + Math.random() * 9000);
+
+      canhotosData.unshift({
         id: newId,
         cte: cte,
+        nf: nf,
+        planta: planta,
         cnpj: currentUser?.cnpj || '14.882.910/0001-44',
         transportadora: currentUser?.name || 'TransRodrigues Logística Ltda',
         data: data,
-        recebedor: recebedor,
+        recebedor: rec,
         status: 'ANALISE',
-        fileName: storagePath || (currentSelectedFile ? currentSelectedFile.name : 'canhoto.jpg'),
-        fileUrl: fileUrl
-      };
-
-      // 2. Grava registro na tabela Supabase
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('canhotos').insert([{
-            id: novoCanhoto.id,
-            cte: novoCanhoto.cte,
-            cnpj: novoCanhoto.cnpj,
-            transportadora: novoCanhoto.transportadora,
-            data: novoCanhoto.data,
-            recebedor: novoCanhoto.recebedor,
-            status: 'ANALISE',
-            file_name: novoCanhoto.fileName,
-            file_url: novoCanhoto.fileUrl
-          }]);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      canhotosData.unshift(novoCanhoto);
-
-      const cteRel = ctesData.find(x => x.id === cte);
-      if (cteRel && cteRel.status === 'PENDENTE') {
-        cteRel.status = 'ANALISE';
-      }
+        fileName: 'canhoto_' + cte + '.jpg',
+        fileData: currentFileBase64
+      });
 
       saveStorage('canhotos', canhotosData);
-      saveStorage('ctes', ctesData);
-
-      btn.disabled = false;
-      btn.innerText = '🚀 Postar Canhoto para Validação';
-
       renderAll();
-      alert(`✅ Canhoto postado com sucesso!\nProtocolo: ${newId}.\nA foto já está disponível na nuvem para o time de Customer.`);
+      alert(`✅ Canhoto postado com sucesso! Protocolo: ${newId}.`);
       document.getElementById('formCanhoto').reset();
       document.getElementById('filePreviewName').innerText = '';
-      currentSelectedFile = null;
+      currentFileBase64 = null;
     }
 
     function viewCanhotoDoc(id) {
       const c = canhotosData.find(x => x.id === id);
-      if (!c) return;
-      if (c.fileUrl) {
-        window.open(c.fileUrl, '_blank');
+      if (c && c.fileData) {
+        const win = window.open("");
+        win.document.write(`<title>Documento ${c.cte}</title><img src="${c.fileData}" style="max-width:100%; height:auto;" alt="Canhoto">`);
       } else {
-        alert(`Documento: ${c.fileName}\nRecebedor: ${c.recebedor}`);
+        alert(`Documento em arquivo: ${c?.fileName || 'Canhoto'}\nRecebedor: ${c?.recebedor}`);
       }
-    }
-
-    // AUDITORIA: APROVAR, ARQUIVAR POR E-MAIL E DELETAR DO SUPABASE (LIMPEZA)
-    function openPreviewCanhotoModal(canId, cte, recebedor) {
-      selectedCanhotoId = canId;
-      document.getElementById('previewCteTitle').innerText = cte;
-      document.getElementById('previewRecebedor').innerText = 'Recebido por: ' + recebedor;
-
-      const c = canhotosData.find(x => x.id === canId);
-      const container = document.getElementById('previewDocContainer');
-      if (c && c.fileUrl) {
-        container.innerHTML = `<img src="${c.fileUrl}" style="max-height:280px; max-width:100%; border-radius:4px;" alt="Canhoto">`;
-      } else {
-        container.innerHTML = `<div style="font-size:3rem;">📄</div><span class="text-muted">${c?.fileName || 'Canhoto'}</span>`;
-      }
-
-      openModal('modalPreviewCanhoto');
-    }
-
-    async function aprovarCanhotoModal() {
-      const can = canhotosData.find(c => c.id === selectedCanhotoId);
-      if (!can) return;
-
-      const emailDestino = document.getElementById('emailArquivoInput')?.value || 'canhotos.logistica@adm.com';
-      let authCode = 'ADM.TED.' + Math.floor(1000000 + Math.random() * 9000000);
-
-      // 1. Prepara E-mail de Arquivo Permanente
-      const subject = encodeURIComponent(`[CANHOTO VALIDADO ADM] CT-e ${can.cte} - ${can.transportadora}`);
-      const body = encodeURIComponent(
-        `Prezados,\n\nO canhoto de entrega referente ao frete ${can.cte} foi devidamente VALIDADO e APROVADO pela equipe de Customer/Transportes da ADM Nutrição Animal.\n\n` +
-        `• Protocolo: ${can.id}\n` +
-        `• Transportadora: ${can.transportadora} (CNPJ: ${can.cnpj})\n` +
-        `• Data Entrega: ${can.data}\n` +
-        `• Recebedor no Destino: ${can.recebedor}\n` +
-        `• Validador Responsável: ${currentUser.name} (${currentUser.login})\n` +
-        `• Autenticação Bancária: ${authCode}\n` +
-        `• Link/Documento Arquivado: ${can.fileUrl || can.fileName}\n\n` +
-        `O frete foi liberado no extrato para liquidação bancária. Este registro serve como comprovante permanente de arquivo.`
-      );
-
-      // 2. Limpeza / Expurgo do Supabase Storage para liberar espaço na nuvem
-      if (supabaseClient && can.fileName) {
-        try {
-          await supabaseClient
-            .storage
-            .from('canhotos')
-            .remove([can.fileName]);
-
-          await supabaseClient
-            .from('canhotos')
-            .update({ status: 'APROVADO', file_url: '[ARQUIVADO VIA E-MAIL]' })
-            .eq('id', can.id);
-        } catch (err) {
-          console.warn('Erro ao expurgar do Supabase:', err);
-        }
-      }
-
-      // 3. Atualiza estado local
-      can.status = 'APROVADO';
-      can.fileUrl = null; // liberado da memória
-
-      const cte = ctesData.find(x => x.id === can.cte);
-      if (cte) {
-        cte.status = 'PAGO';
-        cte.pagoEm = new Date().toISOString().split('T')[0];
-        cte.autenticacao = authCode;
-      }
-
-      auditoriaHistorico.unshift({
-        protocolo: can.id,
-        cte: can.cte,
-        decisao: 'APROVADO',
-        validador: `${currentUser.name} (${currentUser.login})`,
-        dataHora: new Date().toLocaleString('pt-BR'),
-        detalhe: `Validado por ${currentUser.name}. Canhoto arquivado por e-mail e removido do Supabase.`
-      });
-
-      saveStorage('canhotos', canhotosData);
-      saveStorage('ctes', ctesData);
-      saveStorage('historico', auditoriaHistorico);
-
-      closeModal('modalPreviewCanhoto');
-      renderAll();
-
-      alert(`✅ Canhoto validado com sucesso por ${currentUser.name}!\n\n1. O pagamento do frete foi liberado.\n2. O arquivo temporário foi deletado do Supabase para manter o plano gratuito limpo.\n3. O cliente de e-mail será aberto para o envio do registro definitivo.`);
-
-      // Dispara o e-mail de arquivo
-      window.location.href = `mailto:${emailDestino}?subject=${subject}&body=${body}`;
-    }
-
-    async function glosarCanhotoModal() {
-      const mot = prompt('Informe a justificativa da recusa/glosa do canhoto:');
-      if (mot) {
-        const can = canhotosData.find(c => c.id === selectedCanhotoId);
-        if (can) {
-          can.status = 'GLOSADO';
-
-          if (supabaseClient) {
-            try {
-              await supabaseClient
-                .from('canhotos')
-                .update({ status: 'GLOSADO' })
-                .eq('id', can.id);
-            } catch (err) {
-              console.error(err);
-            }
-          }
-
-          auditoriaHistorico.unshift({
-            protocolo: can.id,
-            cte: can.cte,
-            decisao: 'GLOSADO',
-            validador: `${currentUser.name} (${currentUser.login})`,
-            dataHora: new Date().toLocaleString('pt-BR'),
-            detalhe: `Recusado: ${mot}`
-          });
-
-          saveStorage('canhotos', canhotosData);
-          saveStorage('historico', auditoriaHistorico);
-        }
-        closeModal('modalPreviewCanhoto');
-        renderAll();
-        alert('Canhoto glosado e registrado no histórico com seu usuário.');
-      }
-    }
-
-    // FORMULÁRIO DE CONHECIMENTO
-    function handleSalvarFormulario(e) {
-      e.preventDefault();
-      const estadosSel = Array.from(document.querySelectorAll('input[name="estadosUf"]:checked')).map(cb => cb.value);
-      const veiculosSel = Array.from(document.querySelectorAll('input[name="veiculos"]:checked')).map(cb => cb.value);
-      const especiaisSel = Array.from(document.querySelectorAll('input[name="especiais"]:checked')).map(cb => cb.value);
-
-      if (estadosSel.length === 0 || veiculosSel.length === 0) {
-        alert('Por favor, selecione os estados e tipos de veículos atendidos.');
-        return;
-      }
-
-      fichasData.unshift({
-        regiao: document.getElementById('f_regiao').value,
-        responsavel: document.getElementById('f_responsavel').value,
-        telefone: document.getElementById('f_telefone').value,
-        transportadora: document.getElementById('f_transportadora').value,
-        email: document.getElementById('f_email').value,
-        cnpj: document.getElementById('f_cnpj').value,
-        estados: estadosSel,
-        seguroVeiculo: document.getElementById('f_seguro_veiculo').value,
-        seguroCarga: document.getElementById('f_seguro_carga').value,
-        cobreMolhadura: document.getElementById('f_cobre_molhadura').value,
-        cobreAvarias: document.getElementById('f_cobre_avarias').value,
-        tipoFrota: document.getElementById('f_tipo_frota').value,
-        veiculos: veiculosSel,
-        especiais: especiaisSel.length ? especiaisSel : ['NENHUM'],
-        atendimento: document.getElementById('f_tipo_atendimento').value,
-        regime: document.getElementById('f_regime_tributario').value
-      });
-
-      saveStorage('fichas', fichasData);
-      renderAll();
-      alert('✅ Ficha de Conhecimento registrada com sucesso!');
-      navigate('tab-carrier-overview');
-    }
-
-    function salvarLinkBookings() {
-      const url = document.getElementById('inputBookingsUrl').value.trim();
-      document.getElementById('btnLinkBookings').href = url;
-      alert('Link do Microsoft Bookings atualizado!');
     }
 
     function viewComprovante(cteId) {
@@ -1358,43 +1600,46 @@
           <h3 style="color:var(--adm-blue-dark);">ADM do Brasil Ltda. - Nutrição Animal</h3>
           <p class="text-muted" style="margin-bottom:1rem;">Comprovante de Transferência de Frete</p>
           <p><strong>Favorecido:</strong> ${currentUser?.name || 'Transportador Homologado'}</p>
-          <p><strong>CT-e:</strong> ${cte.id}</p>
-          <p><strong>Trajeto:</strong> ${cte.origem} ➔ ${cte.destino}</p>
+          <p><strong>CT-e:</strong> ${cte.id} | <strong>NF:</strong> ${cte.nf || '-'}</p>
+          <p><strong>Planta ADM:</strong> ${cte.planta}</p>
           <p><strong>Valor:</strong> <span style="font-size:1.2rem; color:var(--adm-blue-primary); font-weight:700;">${cte.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></p>
-          <p><strong>Autenticação:</strong> ${cte.autenticacao}</p>
+          <p><strong>Autenticação Bancária:</strong> ${cte.autenticacao}</p>
         </div>
       `;
       openModal('modalComprovante');
     }
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function exportarFichasCsv() {
-      let csv = "data:text/csv;charset=utf-8,Transportadora;CNPJ;Responsavel;Contato;Regiao;Estados;TipoFrota;Veiculos;Especiais;SeguroCarga;Molhadura;Regime\n";
-      fichasData.forEach(f => {
-        csv += `"${f.transportadora}";"${f.cnpj}";"${f.responsavel}";"${f.telefone}";"${f.regiao}";"${f.estados.join('/')}";"${f.tipoFrota}";"${f.veiculos.join('/')}";"${f.especiais.join('/')}";"${f.seguroCarga}";"${f.cobreMolhadura}";"${f.regime}"\n`;
-      });
-      const encodedUri = encodeURI(csv);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "fichas_homologacao_adm_nutricao_animal.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    function downloadModeloCsv() {
+      const csv = "data:text/csv;charset=utf-8,NumeroCTE;NumeroNF;CNPJ_Transportadora;Planta;DataEmissao;ValorFrete;Status;DataPagamento\n"
+        + "CTE-2026-9500;NF-10204;14.882.910/0001-44;Indaiatuba (SP);2026-10-01;19500,00;PENDENTE;-\n"
+        + "CTE-2026-9501;NF-10205;14.882.910/0001-44;Descalvado (SP);2026-10-02;23100,00;PAGO;2026-10-05";
+      const uri = encodeURI(csv);
+      const a = document.createElement("a");
+      a.href = uri;
+      a.download = "modelo_base_fretes_adm.csv";
+      a.click();
     }
 
     function exportCteCsv() {
-      let csv = "data:text/csv;charset=utf-8,NumeroCTE;CNPJ;Origem;Destino;Emissao;Valor;Status;DataPagamento\n";
-      ctesData.forEach(c => { csv += `${c.id};${c.cnpj};${c.origem};${c.destino};${c.emissao};${c.valor};${c.status};${c.pagoEm}\n`; });
-      const encodedUri = encodeURI(csv);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "meus_fretes_adm_nutricao_animal.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      let csv = "data:text/csv;charset=utf-8,NumeroCTE;Emissao;Planta;ValorFrete;Status;DataPagamento\n";
+      ctesData.forEach(c => { csv += `"${c.id}";"${c.emissao}";"${c.planta}";"${c.valor}";"${c.status}";"${c.pagoEm}"\n`; });
+      const a = document.createElement("a");
+      a.href = encodeURI(csv);
+      a.download = "meus_fretes_adm_nutricao.csv";
+      a.click();
     }
+
+    function exportarFichasCsv() {
+      let csv = "data:text/csv;charset=utf-8,Transportadora;CNPJ;Responsavel;Contato;Regiao;Regime;Status\n";
+      fichasData.forEach(f => { csv += `"${f.transportadora}";"${f.cnpj}";"${f.responsavel}";"${f.telefone}";"${f.regiao}";"${f.regime}";"${f.status}"\n`; });
+      const a = document.createElement("a");
+      a.href = encodeURI(csv);
+      a.download = "fichas_homologacao_adm.csv";
+      a.click();
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
   </script>
 </body>
 </html>
