@@ -164,11 +164,57 @@
     th { background: #f8fafc; color: var(--adm-muted); font-weight: 600; padding: 0.75rem 1rem; border-bottom: 1px solid var(--adm-border); }
     td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--adm-border); }
     tr:hover td { background-color: #f8fafc; }
+    tr.row-abaixo-piso td { background-color: #fef2f2 !important; border-left: 4px solid var(--adm-danger); }
 
     .form-group { margin-bottom: 1.1rem; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--adm-text); margin-bottom: 0.4rem; }
     .form-control { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--adm-border); border-radius: 6px; font-size: 0.85rem; }
     .form-control:focus { border-color: var(--adm-blue-primary); outline: none; }
+
+    /* Estilos Especiais da Gestão de Cotações ANTT */
+    .antt-card-box {
+      background: #f8fafc;
+      border: 1px solid var(--adm-border);
+      border-radius: 8px;
+      padding: 1.15rem;
+      margin-bottom: 1.25rem;
+    }
+    .antt-rule-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-right: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .antt-rule-pill.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .antt-rule-pill.danger {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .antt-param-table input {
+      width: 100%;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.8rem;
+      border: 1px solid var(--adm-border);
+      border-radius: 4px;
+    }
+
+    .search-instant-box {
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 0.85rem;
+      margin-bottom: 1rem;
+    }
 
     .checkbox-grid {
       display: grid;
@@ -263,7 +309,7 @@
 
   <!-- Master Bar do Controle Logístico -->
   <div id="devMasterBar" class="dev-switch-bar hidden">
-    <div><strong>⚡ Painel Controle Logístico (ADM Master):</strong> Alternar visão para testes:</div>
+    <div><strong>⚡ Painel Controle Logístico (ADM Master):</strong> Alternar visão para testes operacionais:</div>
     <div style="display: flex; gap: 0.5rem;">
       <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="applyView('carrier')">🚚 Visão Transportadora</button>
       <button class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;" onclick="applyView('validator')">🛡️ Mesa de Validação</button>
@@ -325,7 +371,7 @@
     <!-- PERFIL: TRANSPORTADORA (CARRIER)                                  -->
     <!-- ------------------------------------------------------------------ -->
     
-    <!-- ABA 0: PAINEL GERAL (DASHBOARD INICIAL DO TRANSPORTADOR) -->
+    <!-- ABA 0: DASHBOARD INICIAL DO TRANSPORTADOR (PAINEL GERAL) -->
     <div id="tab-carrier-overview" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
@@ -366,23 +412,28 @@
       </div>
     </div>
 
-    <!-- ABA 1: ENVIO DE CANHOTO COM BUSCA POR NOTA FISCAL -->
+    <!-- ABA 1: ENVIO DE CANHOTO COM PESQUISA IMEDIATA (NF OU CTE) -->
     <div id="tab-carrier-canhotos" class="view-panel hidden">
       <div class="grid-2">
         <div class="view-card">
           <div class="view-header">
             <div>
               <h3 class="view-title">Postagem de Canhotos de Entrega</h3>
-              <p class="view-desc">Pesquise pela NF para carregar o CT-e e a Planta automaticamente.</p>
+              <p class="view-desc">Pesquise pela NF ou CT-e: os dados são identificados na hora.</p>
             </div>
           </div>
 
           <form id="formCanhoto" onsubmit="handleSendCanhoto(event)">
-            <div class="form-group">
-              <label>🔍 Pesquisar Número da Nota Fiscal (NF) *</label>
-              <input type="text" id="canhotoNfSearch" list="listNfs" class="form-control" placeholder="Digite o número da NF (ex: NF-99214)" oninput="handleNfLookup(this.value)" required>
-              <datalist id="listNfs"></datalist>
-              <small class="text-muted">Ao selecionar a NF da base, CT-e e Planta serão preenchidos automaticamente.</small>
+            
+            <div class="search-instant-box">
+              <label style="font-weight: 700; color: var(--adm-blue-primary); font-size: 0.85rem; display: block; margin-bottom: 0.35rem;">
+                🔍 Pesquisar Nota Fiscal (NF) ou Conhecimento (CT-e) *
+              </label>
+              <input type="text" id="canhotoDocSearch" list="listDocs" class="form-control" placeholder="Digite para pesquisar: Ex: 99214 ou 9012..." oninput="handleInstantDocLookup(this.value)" autocomplete="off" required>
+              <datalist id="listDocs"></datalist>
+              <div id="instantLookupFeedback" style="margin-top: 0.4rem; font-size: 0.8rem; font-weight: 600; color: var(--adm-muted);">
+                Digite o número para auto-preencher os dados do frete.
+              </div>
             </div>
 
             <div class="grid-2">
@@ -391,8 +442,19 @@
                 <input type="text" id="canhotoCte" class="form-control" placeholder="CTE-XXXX" required>
               </div>
               <div class="form-group">
+                <label>Número da Nota Fiscal (NF)</label>
+                <input type="text" id="canhotoNf" class="form-control" placeholder="NF-XXXX">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
                 <label>Planta de Carregamento ADM *</label>
-                <input type="text" id="canhotoPlanta" class="form-control" placeholder="Ex: Indaiatuba (SP), Primavera (MT)" required>
+                <input type="text" id="canhotoPlanta" class="form-control" placeholder="Ex: Descalvado (SP), Primavera (MT)" required>
+              </div>
+              <div class="form-group">
+                <label>Valor do Frete Declarado</label>
+                <input type="text" id="canhotoValor" class="form-control" placeholder="R$ 0,00" readonly style="background:#f1f5f9;">
               </div>
             </div>
 
@@ -443,7 +505,7 @@
       </div>
     </div>
 
-    <!-- ABA 2: MEUS FRETES REFORMULADA (CAMPOS PRECISOS + FILTROS COMPLETOS) -->
+    <!-- ABA 2: MEUS FRETES REFORMULADA -->
     <div id="tab-carrier-ctes" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
@@ -534,11 +596,10 @@
             </div>
 
             <div class="form-group">
-              <label>Anexar Documento / Comprovante (PDF/Imagem) *</label>
+              <label>Anexar Documento / Comprovante (PDF/Imagem)</label>
               <input type="file" id="fileAlteracao" class="form-control">
             </div>
 
-            <!-- Botão de Bookings condicionado estritamente à categoria 'Informações Adicionais' -->
             <div id="boxBookingsCondicional" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
               <strong style="color: #166534; font-size: 0.88rem;">📅 Reunião de Alinhamento Liberada</strong>
               <p style="font-size: 0.8rem; color: #166534; margin: 0.3rem 0 0.8rem;">Como selecionou "Informações Adicionais", você pode agendar uma reunião diretamente na agenda da equipe pelo Microsoft Bookings:</p>
@@ -569,7 +630,6 @@
         </div>
       </div>
     </div>
-
 
     <!-- ------------------------------------------------------------------ -->
     <!-- PERFIL: MESA DE VALIDAÇÃO (CUSTOMER & TRANSPORTES)                -->
@@ -621,12 +681,11 @@
       </div>
     </div>
 
-
     <!-- ------------------------------------------------------------------ -->
     <!-- PERFIL: CONTROLE LOGÍSTICO (BIANCA, YAGO, FRANCISCO)              -->
     <!-- ------------------------------------------------------------------ -->
 
-    <!-- ABA HOMOLOGAÇÃO DE CADASTROS & SOLICITAÇÕES -->
+    <!-- ABA 1: HOMOLOGAÇÃO DE CADASTROS & SOLICITAÇÕES -->
     <div id="tab-dev-cadastros" class="view-panel hidden">
       <div class="view-card">
         <div class="view-header">
@@ -677,100 +736,217 @@
       </div>
     </div>
 
-    <!-- ABA COTAÇÃO DE FRETE TRIPLA + PISO MÍNIMO ANTT -->
+    <!-- ABA 2: COTAÇÃO DE FRETE (MODELO EXATO DA IMAGEM) -->
     <div id="tab-dev-cotacoes" class="view-panel hidden">
       <div class="view-card" style="border-left: 4px solid var(--adm-green);">
-        <div class="view-header">
+        
+        <!-- Header da Seção de Cotação de Frete com Ações Exatas -->
+        <div class="view-header" style="flex-wrap: wrap; gap: 0.75rem;">
           <div>
-            <h3 class="view-title">🚛 Simulador e Painel de Cotação de Frete (Triangulação)</h3>
-            <p class="view-desc">Comparação obrigatória de 3 propostas com validação do Piso Mínimo ANTT por tipo de carga e KM.</p>
+            <h3 class="view-title" style="display:flex; align-items:center; gap:0.5rem;">
+              Cotação de Frete ▾
+            </h3>
+            <p class="view-desc">Simulação e concorrência tripla com parâmetros vigentes da ANTT (Carga Geral / Lotação).</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="btn btn-success" onclick="toggleFormCotacao()">+ Nova cotação</button>
+            <button class="btn btn-outline" onclick="exportarCotacoesCsv()">Exportar CSV</button>
+            <button class="btn btn-primary" onclick="exportarCotacoesCsv()">📥 Exportar</button>
           </div>
         </div>
 
-        <form onsubmit="handleSalvarCotacao(event)" style="background: #f8fafc; border: 1px solid var(--adm-border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
-          <div class="grid-3">
-            <div class="form-group">
-              <label>Origem / Planta Carregadora *</label>
-              <input type="text" id="cotOrigem" class="form-control" placeholder="Ex: Indaiatuba - SP" required>
+        <!-- Box 1: Legenda de Conformidade com o Piso ANTT -->
+        <div class="antt-card-box">
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <label class="checkbox-label" style="font-weight: 600; color: var(--adm-blue-dark);">
+              <input type="checkbox" id="chkRotaCadastrada" checked> ☑ Rota já cadastrada em tabela
+            </label>
+            <div>
+              <span class="antt-rule-pill success">
+                🚛 ANTT: Todos os valores acima do piso mínimo
+              </span>
             </div>
-            <div class="form-group">
-              <label>Destino / Cliente *</label>
-              <input type="text" id="cotDestino" class="form-control" placeholder="Ex: Rondonópolis - MT" required>
-            </div>
-            <div class="form-group">
-              <label>Distância Total (KM) *</label>
-              <input type="number" id="cotKm" class="form-control" placeholder="Ex: 1450" oninput="calcularPisoAntt()" required>
-            </div>
-          </div>
-
-          <div class="grid-3">
-            <div class="form-group">
-              <label>Tipo de Tabela ANTT (Composição) *</label>
-              <select id="cotTipoAntt" class="form-control" onchange="calcularPisoAntt()" required>
-                <option value="GRANEL_SOLIDO">Granel Sólido (Grãos / Farelo)</option>
-                <option value="CARGA_GERAL">Carga Geral (Ensacados / Paletes)</option>
-                <option value="FRIGORIFICADA">Frigorificada / Especial</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Número de Eixos *</label>
-              <select id="cotEixos" class="form-control" onchange="calcularPisoAntt()" required>
-                <option value="5">5 Eixos (Carreta Simples)</option>
-                <option value="6">6 Eixos (Vanderleia / Carreta 3 Eixos)</option>
-                <option value="7">7 Eixos (Bitrem)</option>
-                <option value="9">9 Eixos (Rodotrem)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Piso Mínimo ANTT Calculado (R$):</label>
-              <input type="text" id="cotPisoAntt" class="form-control" style="background:#e2e8f0; font-weight:700;" readonly value="R$ 0,00">
+            <div>
+              <span class="antt-rule-pill danger">
+                ☐ Linha vermelha: algum valor abaixo do piso mínimo
+              </span>
             </div>
           </div>
+        </div>
 
-          <div class="grid-3" style="background: white; border: 1px solid var(--adm-border); padding: 1rem; border-radius: 6px;">
-            <div class="form-group">
-              <label style="color: var(--adm-blue-dark);">1ª Cotação (Transportadora A) *</label>
-              <input type="text" id="cotTransp1" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
-              <input type="number" id="cotValor1" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
-            </div>
-            <div class="form-group">
-              <label style="color: var(--adm-blue-dark);">2ª Cotação (Transportadora B) *</label>
-              <input type="text" id="cotTransp2" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
-              <input type="number" id="cotValor2" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
-            </div>
-            <div class="form-group">
-              <label style="color: var(--adm-blue-dark);">3ª Cotação (Transportadora C) *</label>
-              <input type="text" id="cotTransp3" class="form-control" placeholder="Nome Transportadora" required style="margin-bottom:0.3rem;">
-              <input type="number" id="cotValor3" step="0.01" class="form-control" placeholder="Valor Frete (R$)" required>
-            </div>
+        <!-- Box 2: Parâmetros do piso mínimo ANTT por tipo de veículo (Fórmula Oficial) -->
+        <div class="antt-card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <strong style="color: var(--adm-blue-dark); font-size: 0.92rem;">
+              ▾ Parâmetros do piso mínimo ANTT por tipo de veículo
+            </strong>
+            <span class="text-muted" style="font-size: 0.75rem;">Valores editáveis para recálculo automático</span>
           </div>
+          <p style="font-size: 0.8rem; color: var(--adm-muted); margin-bottom: 0.85rem; line-height: 1.5;">
+            <strong>Piso da viagem = KM × CCD + CC;</strong> o piso por tonelada é esse valor dividido pela capacidade. Os números abaixo são exemplos: ajuste conforme a tabela da ANTT vigente (carga geral, lotação).
+          </p>
 
-          <div style="text-align: right; margin-top: 1rem;">
-            <button type="submit" class="btn btn-success">💾 Gravar Mapa de Cotação Tripla</button>
+          <div class="table-container">
+            <table class="antt-param-table">
+              <thead>
+                <tr>
+                  <th>Veículo</th>
+                  <th>Capacidade (ton)</th>
+                  <th>CCD (R$/km)</th>
+                  <th>CC (R$)</th>
+                </tr>
+              </thead>
+              <tbody id="tableParametrosAnttBody">
+                <tr>
+                  <td><strong>Toco</strong></td>
+                  <td><input type="number" id="param_cap_toco" value="6" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" step="0.01" id="param_ccd_toco" value="4.35" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" id="param_cc_toco" value="420" oninput="recalcularCotacoesNaTela()"></td>
+                </tr>
+                <tr>
+                  <td><strong>Truck</strong></td>
+                  <td><input type="number" id="param_cap_truck" value="14" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" step="0.01" id="param_ccd_truck" value="5.20" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" id="param_cc_truck" value="480" oninput="recalcularCotacoesNaTela()"></td>
+                </tr>
+                <tr>
+                  <td><strong>Carreta</strong></td>
+                  <td><input type="number" id="param_cap_carreta" value="27" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" step="0.01" id="param_ccd_carreta" value="6.60" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" id="param_cc_carreta" value="560" oninput="recalcularCotacoesNaTela()"></td>
+                </tr>
+                <tr>
+                  <td><strong>Bitrem</strong></td>
+                  <td><input type="number" id="param_cap_bitrem" value="37" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" step="0.01" id="param_ccd_bitrem" value="7.90" oninput="recalcularCotacoesNaTela()"></td>
+                  <td><input type="number" id="param_cc_bitrem" value="650" oninput="recalcularCotacoesNaTela()"></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </form>
+        </div>
 
+        <!-- Formulário de Nova Cotação (Campos Exatos da Barra Inferior) -->
+        <div id="formNovaCotacaoContainer" style="display: block; background: #ffffff; border: 1px solid var(--adm-border); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--adm-blue-dark); margin-bottom: 1rem; font-size: 0.95rem;">
+            ➕ Lançamento de Solicitação e Cotação de Frete
+          </h4>
+          <form onsubmit="handleSalvarCotacaoModelo(event)">
+            <div class="grid-4">
+              <div class="form-group">
+                <label>Data da solicitação *</label>
+                <input type="date" id="cot_data" class="form-control" value="2026-10-08" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo de cotação *</label>
+                <select id="cot_tipo_fluxo" class="form-control" required>
+                  <option value="Outbound">Outbound ▾</option>
+                  <option value="Inbound">Inbound ▾</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tipo de solicitação *</label>
+                <select id="cot_tipo_solic" class="form-control" required>
+                  <option value="Cadastro">Cadastro ▾</option>
+                  <option value="Spot">Spot ▾</option>
+                  <option value="Safra">Safra ▾</option>
+                  <option value="Emergencial">Emergencial ▾</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Planta ADM *</label>
+                <select id="cot_planta" class="form-control" required>
+                  <option value="Indaiatuba (SP)">Indaiatuba (SP)</option>
+                  <option value="Descalvado (SP)">Descalvado (SP)</option>
+                  <option value="Primavera do Leste (MT)">Primavera do Leste (MT)</option>
+                  <option value="Rolim de Moura (RO)">Rolim de Moura (RO)</option>
+                  <option value="São Lourenço da Mata (PE)">São Lourenço da Mata (PE)</option>
+                  <option value="Canoas (RS)">Canoas (RS)</option>
+                  <option value="Apucarana (PR)">Apucarana (PR)</option>
+                  <option value="Inhumas (GO)">Inhumas (GO)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-4">
+              <div class="form-group">
+                <label>Cidade / Destino *</label>
+                <input type="text" id="cot_cidade_destino" class="form-control" placeholder="Ex: Rondonópolis - MT" required>
+              </div>
+              <div class="form-group">
+                <label>Distância da Viagem (KM) *</label>
+                <input type="number" id="cot_km" class="form-control" placeholder="Ex: 850" oninput="atualizarPreviewPisoViagem()" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo de Veículo *</label>
+                <select id="cot_veiculo" class="form-control" onchange="atualizarPreviewPisoViagem()" required>
+                  <option value="Toco">Toco (6t)</option>
+                  <option value="Truck">Truck (14t)</option>
+                  <option value="Carreta" selected>Carreta (27t)</option>
+                  <option value="Bitrem">Bitrem (37t)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Piso da Viagem Calculado</label>
+                <input type="text" id="cot_piso_preview" class="form-control" readonly style="background:#f1f5f9; font-weight:700; color:var(--adm-blue-dark);" value="R$ 0,00">
+              </div>
+            </div>
+
+            <!-- Valores das 3 Cotações de Frete -->
+            <div class="grid-3" style="background:#f8fafc; border:1px solid var(--adm-border); padding:1rem; border-radius:6px; margin-bottom:1rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label>1ª Proposta (Transportador A) *</label>
+                <input type="text" id="cot_fornec_1" class="form-control" placeholder="Transportadora 1" required style="margin-bottom:0.3rem;">
+                <input type="number" step="0.01" id="cot_val_1" class="form-control" placeholder="Valor Total R$" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>2ª Proposta (Transportador B) *</label>
+                <input type="text" id="cot_fornec_2" class="form-control" placeholder="Transportadora 2" required style="margin-bottom:0.3rem;">
+                <input type="number" step="0.01" id="cot_val_2" class="form-control" placeholder="Valor Total R$" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label>3ª Proposta (Transportador C) *</label>
+                <input type="text" id="cot_fornec_3" class="form-control" placeholder="Transportadora 3" required style="margin-bottom:0.3rem;">
+                <input type="number" step="0.01" id="cot_val_3" class="form-control" placeholder="Valor Total R$" required>
+              </div>
+            </div>
+
+            <div style="text-align: right;">
+              <button type="submit" class="btn btn-success" style="padding:0.75rem 1.75rem;">
+                💾 Homologar Cotação no Painel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tabela Completa de Gestão das Cotações -->
         <div class="table-container">
           <table>
             <thead>
               <tr>
-                <th>Rota</th>
+                <th>Data</th>
+                <th>Fluxo</th>
+                <th>Tipo</th>
+                <th>Planta ADM</th>
+                <th>Cidade Destino</th>
                 <th>KM</th>
+                <th>Veículo</th>
                 <th>Piso Mínimo ANTT</th>
-                <th>1ª Cotação</th>
-                <th>2ª Cotação</th>
-                <th>3ª Cotação</th>
+                <th>1ª Oferta</th>
+                <th>2ª Oferta</th>
+                <th>3ª Oferta</th>
                 <th>Melhor Oferta</th>
                 <th>Status ANTT</th>
               </tr>
             </thead>
-            <tbody id="tableCotacoesBody"></tbody>
+            <tbody id="tableCotacoesModeloBody"></tbody>
           </table>
         </div>
+
       </div>
     </div>
 
-    <!-- ABA SUBIR BASE DE DADOS (SEPARADA NA BARRA DO CONTROLE LOGÍSTICO) -->
+    <!-- ABA 3: SUBIR BASE DE DADOS (SEPARADA NA BARRA DO CONTROLE LOGÍSTICO) -->
     <div id="tab-dev-base" class="view-panel hidden">
       <div class="view-card" style="border-left: 4px solid var(--adm-blue-primary);">
         <div class="view-header">
@@ -912,15 +1088,10 @@
   <script>
     const ESTADOS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
-    const TABELA_ANTT_BASE = {
-      GRANEL_SOLIDO: { 5: 4.85, 6: 5.40, 7: 6.20, 9: 7.15 },
-      CARGA_GERAL: { 5: 4.50, 6: 5.10, 7: 5.90, 9: 6.80 },
-      FRIGORIFICADA: { 5: 5.60, 6: 6.30, 7: 7.20, 9: 8.30 }
-    };
-
     function loadStorage(k, def) { const d = localStorage.getItem('adm_' + k); return d ? JSON.parse(d) : def; }
     function saveStorage(k, v) { localStorage.setItem('adm_' + k, JSON.stringify(v)); }
 
+    // BASE DE DADOS DO TMS / SAP
     let ctesData = loadStorage('ctes', [
       { id: 'CTE-2026-8901', nf: 'NF-99101', cnpj: '14.882.910/0001-44', planta: 'Indaiatuba (SP)', emissao: '2026-09-18', valor: 22400.00, status: 'PAGO', pagoEm: '2026-09-22', autenticacao: 'ADM.TED.8920192.X49' },
       { id: 'CTE-2026-8944', nf: 'NF-99150', cnpj: '14.882.910/0001-44', planta: 'Primavera do Leste (MT)', emissao: '2026-09-24', valor: 26250.00, status: 'PAGO', pagoEm: '2026-09-28', autenticacao: 'ADM.PIX.7741029.B11' },
@@ -940,7 +1111,31 @@
     ]);
 
     let solicitacoesData = loadStorage('solicitacoes', []);
-    let cotacoesData = loadStorage('cotacoes', []);
+
+    // COTAÇÕES INICIAIS BASEADAS NO MODELO DA IMAGEM
+    let cotacoesData = loadStorage('cotacoes', [
+      {
+        data: '2026-10-08', fluxo: 'Outbound', tipo: 'Cadastro', planta: 'Indaiatuba (SP)',
+        destino: 'Rondonópolis - MT', km: 1250, veiculo: 'Carreta',
+        pisoAntt: 8810.00,
+        t1: 'TransRodrigues', v1: 9400.00,
+        t2: 'Expresso Soja', v2: 9150.00,
+        t3: 'Rápido Cerrado', v3: 8600.00, // abaixo do piso
+        melhorOferta: 'Rápido Cerrado (R$ 8.600,00)',
+        anttStatus: 'ABAIXO DO PISO'
+      },
+      {
+        data: '2026-10-07', fluxo: 'Outbound', tipo: 'Spot', planta: 'Descalvado (SP)',
+        destino: 'Uberlândia - MG', km: 450, veiculo: 'Truck',
+        pisoAntt: 2820.00,
+        t1: 'TransRodrigues', v1: 3100.00,
+        t2: 'LogTriângulo', v2: 2950.00,
+        t3: 'Transportes Minas', v3: 3200.00,
+        melhorOferta: 'LogTriângulo (R$ 2.950,00)',
+        anttStatus: 'CONFORME'
+      }
+    ]);
+
     let auditoriaHistorico = loadStorage('historico', []);
 
     const USERS_DB = {
@@ -955,12 +1150,12 @@
 
     let currentUser = null;
     let selectedCanhotoId = null;
-    let currentSelectedFile = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       renderEstados();
-      populateNfDataList();
+      populateDocsDataList();
+      atualizarPreviewPisoViagem();
     });
 
     function renderEstados() {
@@ -975,25 +1170,48 @@
       });
     }
 
-    function populateNfDataList() {
-      const dl = document.getElementById('listNfs');
+    function populateDocsDataList() {
+      const dl = document.getElementById('listDocs');
       if (!dl) return;
       dl.innerHTML = '';
       ctesData.forEach(c => {
         if (c.nf) {
-          const opt = document.createElement('option');
-          opt.value = c.nf;
-          opt.label = `CT-e: ${c.id} | Planta: ${c.planta}`;
-          dl.appendChild(opt);
+          const optNf = document.createElement('option');
+          optNf.value = c.nf;
+          optNf.label = `CT-e: ${c.id} | Planta: ${c.planta} | R$ ${c.valor.toFixed(2)}`;
+          dl.appendChild(optNf);
         }
+        const optCte = document.createElement('option');
+        optCte.value = c.id;
+        optCte.label = `NF: ${c.nf || 'S/N'} | Planta: ${c.planta} | R$ ${c.valor.toFixed(2)}`;
+        dl.appendChild(optCte);
       });
     }
 
-    function handleNfLookup(nfTyped) {
-      const match = ctesData.find(c => c.nf && c.nf.toLowerCase() === nfTyped.trim().toLowerCase());
+    function handleInstantDocLookup(query) {
+      const q = query.trim().toLowerCase();
+      const feedback = document.getElementById('instantLookupFeedback');
+      if (!q) {
+        feedback.innerHTML = 'Digite o número para auto-preencher os dados do frete.';
+        feedback.style.color = 'var(--adm-muted)';
+        return;
+      }
+
+      const match = ctesData.find(c => 
+        (c.nf && c.nf.toLowerCase().includes(q)) || 
+        (c.id && c.id.toLowerCase().includes(q))
+      );
+
       if (match) {
         document.getElementById('canhotoCte').value = match.id;
-        document.getElementById('canhotoPlanta').value = match.planta;
+        document.getElementById('canhotoNf').value = match.nf || '';
+        document.getElementById('canhotoPlanta').value = match.planta || '';
+        document.getElementById('canhotoValor').value = match.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        feedback.innerHTML = `✓ Localizado: <strong>${match.nf || match.id}</strong> (Planta: ${match.planta})`;
+        feedback.style.color = 'var(--adm-success)';
+      } else {
+        feedback.innerHTML = 'Nenhum CT-e ou NF encontrado com esse número.';
+        feedback.style.color = 'var(--adm-danger)';
       }
     }
 
@@ -1078,7 +1296,7 @@
           <button class="nav-tab active" onclick="navigate('tab-dev-cadastros')">
             📋 Homologação de Cadastros <span class="tab-badge">${countFichasPendentes}</span>
           </button>
-          <button class="nav-tab" onclick="navigate('tab-dev-cotacoes')">🚛 Cotações & Piso ANTT</button>
+          <button class="nav-tab" onclick="navigate('tab-dev-cotacoes')">🚛 Cotação de Frete (ANTT)</button>
           <button class="nav-tab" onclick="navigate('tab-dev-base')">📥 Subir Base de Dados</button>
         `;
         navigate('tab-dev-cadastros');
@@ -1102,8 +1320,9 @@
       renderCarrierTables();
       renderValidatorTable();
       renderDevTables();
+      renderCotacoesModeloTable();
       updateMetrics();
-      populateNfDataList();
+      populateDocsDataList();
     }
 
     function updateMetrics() {
@@ -1124,6 +1343,177 @@
       if (elAnalise) elAnalise.innerText = emAnalise;
     }
 
+    /* ========================================================
+       CÁLCULO E GESTÃO DAS COTAÇÕES (MODELO DA IMAGEM)
+       FÓRMULA: Piso da viagem = KM × CCD + CC
+       ======================================================== */
+    function getParametrosVeiculo(veiculoNome) {
+      const v = veiculoNome.toLowerCase();
+      if (v.includes('toco')) {
+        return {
+          cap: parseFloat(document.getElementById('param_cap_toco')?.value) || 6,
+          ccd: parseFloat(document.getElementById('param_ccd_toco')?.value) || 4.35,
+          cc: parseFloat(document.getElementById('param_cc_toco')?.value) || 420
+        };
+      } else if (v.includes('truck')) {
+        return {
+          cap: parseFloat(document.getElementById('param_cap_truck')?.value) || 14,
+          ccd: parseFloat(document.getElementById('param_ccd_truck')?.value) || 5.20,
+          cc: parseFloat(document.getElementById('param_cc_truck')?.value) || 480
+        };
+      } else if (v.includes('bitrem')) {
+        return {
+          cap: parseFloat(document.getElementById('param_cap_bitrem')?.value) || 37,
+          ccd: parseFloat(document.getElementById('param_ccd_bitrem')?.value) || 7.90,
+          cc: parseFloat(document.getElementById('param_cc_bitrem')?.value) || 650
+        };
+      } else { // Carreta
+        return {
+          cap: parseFloat(document.getElementById('param_cap_carreta')?.value) || 27,
+          ccd: parseFloat(document.getElementById('param_ccd_carreta')?.value) || 6.60,
+          cc: parseFloat(document.getElementById('param_cc_carreta')?.value) || 560
+        };
+      }
+    }
+
+    function calcularPisoViagem(km, veiculoNome) {
+      const params = getParametrosVeiculo(veiculoNome);
+      return (km * params.ccd) + params.cc;
+    }
+
+    function atualizarPreviewPisoViagem() {
+      const km = parseFloat(document.getElementById('cot_km')?.value) || 0;
+      const veiculo = document.getElementById('cot_veiculo')?.value || 'Carreta';
+      const piso = calcularPisoViagem(km, veiculo);
+      const el = document.getElementById('cot_piso_preview');
+      if (el) el.value = piso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function recalcularCotacoesNaTela() {
+      atualizarPreviewPisoViagem();
+      // Atualiza o piso das cotações já salvas com base nos novos CCD/CC
+      cotacoesData.forEach(c => {
+        c.pisoAntt = calcularPisoViagem(c.km, c.veiculo);
+        const menor = Math.min(c.v1, c.v2, c.v3);
+        c.anttStatus = menor >= c.pisoAntt ? 'CONFORME' : 'ABAIXO DO PISO';
+      });
+      saveStorage('cotacoes', cotacoesData);
+      renderCotacoesModeloTable();
+    }
+
+    function toggleFormCotacao() {
+      const f = document.getElementById('formNovaCotacaoContainer');
+      if (f) {
+        f.style.display = (f.style.display === 'none') ? 'block' : 'none';
+        f.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function handleSalvarCotacaoModelo(e) {
+      e.preventDefault();
+      const dt = document.getElementById('cot_data').value;
+      const fluxo = document.getElementById('cot_tipo_fluxo').value;
+      const solic = document.getElementById('cot_tipo_solic').value;
+      const planta = document.getElementById('cot_planta').value;
+      const destino = document.getElementById('cot_cidade_destino').value;
+      const km = parseFloat(document.getElementById('cot_km').value);
+      const veiculo = document.getElementById('cot_veiculo').value;
+
+      const for1 = document.getElementById('cot_fornec_1').value;
+      const val1 = parseFloat(document.getElementById('cot_val_1').value);
+      const for2 = document.getElementById('cot_fornec_2').value;
+      const val2 = parseFloat(document.getElementById('cot_val_2').value);
+      const for3 = document.getElementById('cot_fornec_3').value;
+      const val3 = parseFloat(document.getElementById('cot_val_3').value);
+
+      const piso = calcularPisoViagem(km, veiculo);
+      const menor = Math.min(val1, val2, val3);
+      const melhorForn = (val1 === menor) ? for1 : ((val2 === menor) ? for2 : for3);
+      const statusAntt = (menor >= piso) ? 'CONFORME' : 'ABAIXO DO PISO';
+
+      cotacoesData.unshift({
+        data: dt,
+        fluxo: fluxo,
+        tipo: solic,
+        planta: planta,
+        destino: destino,
+        km: km,
+        veiculo: veiculo,
+        pisoAntt: piso,
+        t1: for1, v1: val1,
+        t2: for2, v2: val2,
+        t3: for3, v3: val3,
+        melhorOferta: `${melhorForn} (R$ ${menor.toFixed(2)})`,
+        anttStatus: statusAntt
+      });
+
+      saveStorage('cotacoes', cotacoesData);
+      renderCotacoesModeloTable();
+      alert(`✅ Cotação registrada com sucesso!\nPiso ANTT Viagem: R$ ${piso.toFixed(2)}\nMelhor oferta: ${melhorForn} (R$ ${menor.toFixed(2)})\nStatus: ${statusAntt}`);
+      
+      // Reseta os valores das propostas
+      document.getElementById('cot_cidade_destino').value = '';
+      document.getElementById('cot_km').value = '';
+      document.getElementById('cot_fornec_1').value = '';
+      document.getElementById('cot_val_1').value = '';
+      document.getElementById('cot_fornec_2').value = '';
+      document.getElementById('cot_val_2').value = '';
+      document.getElementById('cot_fornec_3').value = '';
+      document.getElementById('cot_val_3').value = '';
+      atualizarPreviewPisoViagem();
+    }
+
+    function renderCotacoesModeloTable() {
+      const tb = document.getElementById('tableCotacoesModeloBody');
+      if (!tb) return;
+      tb.innerHTML = '';
+
+      cotacoesData.forEach(c => {
+        const isAbaixo = c.anttStatus === 'ABAIXO DO PISO';
+        const tr = document.createElement('tr');
+        if (isAbaixo) {
+          tr.className = 'row-abaixo-piso';
+        }
+
+        const badge = isAbaixo ? 'glosado' : 'pago';
+
+        tr.innerHTML = `
+          <td>${c.data}</td>
+          <td><span class="topbar-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">${c.fluxo}</span></td>
+          <td><strong>${c.tipo}</strong></td>
+          <td>${c.planta}</td>
+          <td><strong>${c.destino}</strong></td>
+          <td>${c.km} KM</td>
+          <td>${c.veiculo}</td>
+          <td><strong>${c.pisoAntt.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></td>
+          <td>${c.t1}<br><small class="text-muted">R$ ${c.v1.toFixed(2)}</small></td>
+          <td>${c.t2}<br><small class="text-muted">R$ ${c.v2.toFixed(2)}</small></td>
+          <td>${c.t3}<br><small class="text-muted">R$ ${c.v3.toFixed(2)}</small></td>
+          <td><strong style="color:var(--adm-blue-primary);">${c.melhorOferta}</strong></td>
+          <td><span class="status-pill ${badge}">${c.anttStatus}</span></td>
+        `;
+        tb.appendChild(tr);
+      });
+
+      if (cotacoesData.length === 0) {
+        tb.innerHTML = `<tr><td colspan="13" class="text-muted" style="text-align:center;">Nenhuma cotação de frete lançada.</td></tr>`;
+      }
+    }
+
+    function exportarCotacoesCsv() {
+      let csv = "data:text/csv;charset=utf-8,Data;Fluxo;Tipo;Planta;Destino;KM;Veiculo;Piso_ANTT;Prop1;Val1;Prop2;Val2;Prop3;Val3;Melhor_Oferta;Status_ANTT\n";
+      cotacoesData.forEach(c => {
+        csv += `"${c.data}";"${c.fluxo}";"${c.tipo}";"${c.planta}";"${c.destino}";"${c.km}";"${c.veiculo}";"${c.pisoAntt}";"${c.t1}";"${c.v1}";"${c.t2}";"${c.v2}";"${c.t3}";"${c.v3}";"${c.melhorOferta}";"${c.anttStatus}"\n`;
+      });
+      const a = document.createElement("a");
+      a.href = encodeURI(csv);
+      a.download = "cotacoes_frete_antt_adm.csv";
+      a.click();
+    }
+
+    /* ========================================================
+       DEMAIS OPERAÇÕES DE FRETES, CANHOTOS E HOMOLOGAÇÃO
+       ======================================================== */
     function renderCarrierTables() {
       const tbCte = document.getElementById('tableCarrierCteBody');
       if (tbCte) {
@@ -1287,50 +1677,6 @@
       window.open("https://outlook.office365.com/owa/calendar/ADMTransportes@adm.com/bookings/", "_blank");
     }
 
-    function calcularPisoAntt() {
-      const km = parseFloat(document.getElementById('cotKm').value) || 0;
-      const tipo = document.getElementById('cotTipoAntt').value;
-      const eixos = document.getElementById('cotEixos').value;
-
-      const taxa = TABELA_ANTT_BASE[tipo]?.[eixos] || 5.0;
-      const totalPiso = km * taxa;
-      document.getElementById('cotPisoAntt').value = totalPiso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      return totalPiso;
-    }
-
-    function handleSalvarCotacao(e) {
-      e.preventDefault();
-      const km = parseFloat(document.getElementById('cotKm').value);
-      const piso = calcularPisoAntt();
-      const v1 = parseFloat(document.getElementById('cotValor1').value);
-      const v2 = parseFloat(document.getElementById('cotValor2').value);
-      const v3 = parseFloat(document.getElementById('cotValor3').value);
-
-      const t1 = document.getElementById('cotTransp1').value;
-      const t2 = document.getElementById('cotTransp2').value;
-      const t3 = document.getElementById('cotTransp3').value;
-
-      let menorValor = Math.min(v1, v2, v3);
-      let melhorTransp = v1 === menorValor ? t1 : (v2 === menorValor ? t2 : t3);
-      let anttStatus = menorValor >= piso ? 'CONFORME' : 'ABAIXO DO PISO';
-
-      cotacoesData.unshift({
-        origem: document.getElementById('cotOrigem').value,
-        destino: document.getElementById('cotDestino').value,
-        km: km,
-        piso: piso,
-        t1: `${t1} (R$ ${v1.toFixed(2)})`,
-        t2: `${t2} (R$ ${v2.toFixed(2)})`,
-        t3: `${t3} (R$ ${v3.toFixed(2)})`,
-        vencedor: `${melhorTransp} (R$ ${menorValor.toFixed(2)})`,
-        anttStatus: anttStatus
-      });
-
-      saveStorage('cotacoes', cotacoesData);
-      renderDevTables();
-      alert(`✅ Cotação Tripla homologada com sucesso!\nMelhor oferta: ${melhorTransp}.\nStatus ANTT: ${anttStatus}`);
-    }
-
     function processarBaseCsv() {
       const inp = document.getElementById('inputCsvBase');
       const msg = document.getElementById('baseFeedbackMsg');
@@ -1363,7 +1709,7 @@
         }
 
         saveStorage('ctes', ctesData);
-        populateNfDataList();
+        populateDocsDataList();
         renderAll();
         msg.innerHTML = `<span class="text-success">✓ Sucesso! ${imported} registros integrados à base de dados oficial.</span>`;
       };
@@ -1518,26 +1864,6 @@
           tbSol.appendChild(tr);
         });
       }
-
-      const tbCot = document.getElementById('tableCotacoesBody');
-      if (tbCot) {
-        tbCot.innerHTML = '';
-        cotacoesData.forEach(c => {
-          const badge = c.anttStatus === 'CONFORME' ? 'pago' : 'glosado';
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${c.origem} ➔ ${c.destino}</td>
-            <td>${c.km} KM</td>
-            <td><strong>${c.piso.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></td>
-            <td>${c.t1}</td>
-            <td>${c.t2}</td>
-            <td>${c.t3}</td>
-            <td><strong>${c.vencedor}</strong></td>
-            <td><span class="status-pill ${badge}">${c.anttStatus}</span></td>
-          `;
-          tbCot.appendChild(tr);
-        });
-      }
     }
 
     let currentFileBase64 = null;
@@ -1554,7 +1880,7 @@
     function handleSendCanhoto(e) {
       e.preventDefault();
       const cte = document.getElementById('canhotoCte').value.trim();
-      const nf = document.getElementById('canhotoNfSearch').value.trim();
+      const nf = document.getElementById('canhotoNf').value.trim();
       const planta = document.getElementById('canhotoPlanta').value.trim();
       const data = document.getElementById('canhotoData').value;
       const rec = document.getElementById('canhotoRecebedor').value;
@@ -1579,6 +1905,8 @@
       alert(`✅ Canhoto postado com sucesso! Protocolo: ${newId}.`);
       document.getElementById('formCanhoto').reset();
       document.getElementById('filePreviewName').innerText = '';
+      document.getElementById('instantLookupFeedback').innerHTML = 'Digite o número para auto-preencher os dados do frete.';
+      document.getElementById('instantLookupFeedback').style.color = 'var(--adm-muted)';
       currentFileBase64 = null;
     }
 
